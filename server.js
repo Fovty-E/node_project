@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express =  require('express')
 const app = express()
+const session = require('express-session');
 const csurf = require('csurf')
 const path = require('path')
 const cors =  require('cors')
@@ -52,6 +53,11 @@ app.use('/dashboard', require('./routes/user'))
 
 
 app.use(verifyJWT);
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+}));
 app.use('/api', require('./routes/api/user'))
 app.use('/subdir', require('./routes/subdir'))
 app.use('/employees', require('./routes/api/employees'))
