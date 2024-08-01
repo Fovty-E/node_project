@@ -4,15 +4,26 @@ const jwt = require('jsonwebtoken')
 
 
 const handleLogin =  async (req, res) => {
-    const { user, pwd } = req.body
-    console.log(req.body)
-    if(!user || !pwd) return res.status(400).json({'message': 'Username and password are required'});
+    const { username, password } = req.body
+    if(!username || !password) return res.status(400).json({'message': 'Username and password are required'});
+    // Simple regex to check if input is an email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    const foundUser = await User.findOne({ username: user }).exec()
-    
+    // Determine if the input is an email
+    const isEmail = emailRegex.test(username);
+
+    // Query the database based on input type
+    let query = {};
+    if (isEmail) {
+        query.email = username;
+    } else {
+        query.username = username;
+    }
+    const foundUser = await User.findOne(query).exec()
+    console.log(foundUser)
     if(!foundUser) return res.sendStatus(400) //Unauthorized
     // evaluate password
-    const match = await bcrypt.compare(pwd, foundUser.password)
+    const match = await bcrypt.compare(password, foundUser.password)
     if (match) {
         const roles = Object.values(foundUser.roles);
         // create JWTs
@@ -20,11 +31,12 @@ const handleLogin =  async (req, res) => {
             { 
                 "UserInfo":{
                 "username": foundUser.username,
+                "email": foundUser.email,
                 "roles": roles
                 }
             },
             process.env.ACCESS_TOKEN_SECRET,
-            { expiresIn: '120s' }
+            { expiresIn: '10m' }
         )
         const refreshToken = jwt.sign(
             { "username": foundUser.username },
@@ -41,7 +53,7 @@ const handleLogin =  async (req, res) => {
         res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000}); // secure: true
         res.json({ accessToken })
     } else {
-        res.sendStatus(401)
+        res.status(401).json({'message':'Login credentials not valid'})
     }
 }
 

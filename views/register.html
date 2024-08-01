@@ -52,6 +52,7 @@
 
                 if (response.ok) {
                     statusMessage.className = 'alert alert-success';
+                    document.querySelector('#register-form').reset();
                 } else {
                     statusMessage.className = 'alert alert-danger';
                 }

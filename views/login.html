@@ -11,7 +11,7 @@
     <div class="container mt-5">
         <h2 class="text-center">User Registration</h2>
         <div id="status-message" class="alert d-none"></div>
-        <form id="register-form">
+        <form id="login-form">
             <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" class="form-control" id="username" name="username" placeholder="Enter username" required>
@@ -29,31 +29,33 @@
         </form>
     </div>
     <script>
-        document.querySelector('#register-form').addEventListener("submit", async function(event){  
+        document.querySelector('#login-form').addEventListener("submit", async function(event){  
             event.preventDefault()
-            
-            const formData = new FormData(this)
-            const data = Object.fromEntries(formData.entries())
+            formData = new FormData(this)
+            data = Object.fromEntries(formData.entries())
 
+            console.log(data)
             try {
-                const response = await fetch('/register', {
+                const response = await fetch('/auth', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(data)
-                });
-
+                })
+            
                 const result = await response.json()
                 const statusMessage = document.querySelector('#status-message')
 
                 if (response.ok) {
-                    statusMessage.className = 'alert alert-success';
+                    localStorage.setItem('accessToken', data.accessToken);
+                    window.location.href = "/dashboard"
                 } else {
                     statusMessage.className = 'alert alert-danger';
+                    statusMessage.innerText = result.message;
                 }
 
-                statusMessage.innerText = result.message;
+                
                 statusMessage.classList.remove('d-none');
             } catch (error) {
                 console.error('Error: ' + error)

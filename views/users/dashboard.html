@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom Styles -->
+    <style>
+        body {
+            padding-top: 56px;
+        }
+
+        .sidebar {
+            height: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #343a40;
+            display: block;
+        }
+
+        .sidebar a:hover {
+            background-color: #e9ecef;
+        }
+
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h4 class="text-center">Dashboard</h4>
+        <a href="#home">Home</a>
+        <a href="#profile">Profile</a>
+        <a href="#settings">Settings</a>
+        <a href="#logout" id="logout">Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <div class="container">
+            <h1>Welcome to Your Dashboard</h1>
+            <p>This is a basic dashboard layout. Here you can display user-specific information and control panels.</p>
+
+            <!-- User Information Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>User Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> John Doe</p>
+                    <p><strong>Email:</strong> john.doe@example.com</p>
+                    <p><strong>Role:</strong> Admin</p>
+                </div>
+            </div>
+
+            <!-- Recent Activities Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>Recent Activities</h5>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        <li>User logged in</li>
+                        <li>User updated profile</li>
+                        <li>User sent a message</li>
+                        <!-- Add more activities here -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Example usage
+        fetchWithToken('/user/dashboard')
+            .then(response => response.json())
+            .then(data => console.log(data))
+            .catch(error => console.error('Error:', error));
+
+        document.getElementById('logout').addEventListener('click', function (event) {
+            event.preventDefault();
+            // Perform logout actions here, such as clearing tokens or redirecting
+            alert('Logging out...');
+            // Example: window.location.href = '/auth/logout';
+        });
+    </script>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="js/main.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Custom JS for logout functionality -->
+    
+</body>
+
+</html>
