@@ -1,0 +1,6 @@
+20240724	15:26:25	d3b70a59-ff0d-4eb6-9862-2efe32ba1797	Error: Not allowed by CORS
+20240724	16:41:58	d46dfb7c-655a-4251-a41f-1066bf444d10	Error: ENOENT: no such file or directory, stat 'C:\Users\ajewo\Desktop\node_class\express\routes\new-page.html'
+20240724	16:43:03	2e959a03-79f0-40c7-9da1-88948556f527	Error: ENOENT: no such file or directory, stat 'C:\Users\ajewo\Desktop\node_class\express\routes\new-page.html'
+20240724	16:43:16	721ce8ea-7b77-46c2-bf60-7692318a12dd	Error: ENOENT: no such file or directory, stat 'C:\Users\ajewo\Desktop\node_class\express\routes\new-page.html'
+20240730	16:29:48	804482cc-475c-4baf-a757-4e50decbd444	TypeError: allowedOrigins.include is not a function
+20240801	10:06:24	6a6e17dd-f3b1-4d59-8174-686b5a63e5ec	Error: Not allowed by CORS

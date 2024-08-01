@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">User Registration</h2>
+        <div id="status-message" class="alert d-none"></div>
+        <form id="register-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="Enter username" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email address</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Register</button>
+        </form>
+    </div>
+    <script>
+        document.querySelector('#register-form').addEventListener("submit", async function(event){  
+            event.preventDefault()
+            
+            const formData = new FormData(this)
+            const data = Object.fromEntries(formData.entries())
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json()
+                const statusMessage = document.querySelector('#status-message')
+
+                if (response.ok) {
+                    statusMessage.className = 'alert alert-success';
+                } else {
+                    statusMessage.className = 'alert alert-danger';
+                }
+
+                statusMessage.innerText = result.message;
+                statusMessage.classList.remove('d-none');
+            } catch (error) {
+                console.error('Error: ' + error)
+                const statusMessage = document.getElementById('status-message');
+                statusMessage.className = 'alert alert-danger';
+                statusMessage.innerText = 'An error occurred. Please try again.';
+                statusMessage.classList.remove('d-none');
+            }
+        })
+    </script>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
