@@ -45,8 +45,8 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <h4 class="text-center">Dashboard</h4>
-        <a href="#home">Home</a>
-        <a href="#profile">Profile</a>
+        <a href="/dashboard">Home</a>
+        <a href="/dashboard/chat">Chat</a>
         <a href="#settings">Settings</a>
         <a href="#logout" id="logout">Logout</a>
     </div>
@@ -63,9 +63,9 @@
                     <h5>User Information</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Name:</strong> John Doe</p>
-                    <p><strong>Email:</strong> john.doe@example.com</p>
-                    <p><strong>Role:</strong> Admin</p>
+                    <p><strong>Name:</strong> <span id="username"></span></p>
+                    <p><strong>Email:</strong> <span id="email"></span></p>
+                    <!-- <p><strong>Role:</strong> Admin</p> -->
                 </div>
             </div>
 
@@ -85,11 +85,15 @@
             </div>
         </div>
     </div>
+    <script src="js/main.js"></script>
     <script>
-        // Example usage
-        fetchWithToken('/user/dashboard')
+        fetchWithToken('/api/dashboard',{'method':'POST'})
             .then(response => response.json())
-            .then(data => console.log(data))
+            .then((data) => {
+                document.querySelector('#username').innerText = data.username
+                document.querySelector('#email').innerText = data.email
+                console.log(data)
+            })
             .catch(error => console.error('Error:', error));
 
         document.getElementById('logout').addEventListener('click', function (event) {
@@ -100,7 +104,7 @@
         });
     </script>
     <!-- Bootstrap JS and dependencies -->
-    <script src="js/main.js"></script>
+    
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

@@ -42,14 +42,17 @@ app.use('/subdir', express.static(path.join(__dirname, '/public')))
 
 app.use('/', require('./routes/root'))
 app.use('/register', require('./routes/register'))
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname,'views','login.html'))
+})
 app.use('/auth', require('./routes/auth'))
 app.use('/refresh', require('./routes/refresh'))
 app.use('/logout', require('./routes/logout'))
-
 app.use('/dashboard', require('./routes/user'))
 
+
 app.use(verifyJWT);
-app.use('/api/user', require('./routes/api/user'))
+app.use('/api', require('./routes/api/user'))
 app.use('/subdir', require('./routes/subdir'))
 app.use('/employees', require('./routes/api/employees'))
 

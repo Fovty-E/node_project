@@ -48,7 +48,8 @@
                 const statusMessage = document.querySelector('#status-message')
 
                 if (response.ok) {
-                    localStorage.setItem('accessToken', data.accessToken);
+                    
+                    localStorage.setItem('accessToken', result.accessToken);
                     window.location.href = "/dashboard"
                 } else {
                     statusMessage.className = 'alert alert-danger';

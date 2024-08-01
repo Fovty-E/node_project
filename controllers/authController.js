@@ -20,7 +20,7 @@ const handleLogin =  async (req, res) => {
         query.username = username;
     }
     const foundUser = await User.findOne(query).exec()
-    console.log(foundUser)
+    
     if(!foundUser) return res.sendStatus(400) //Unauthorized
     // evaluate password
     const match = await bcrypt.compare(password, foundUser.password)
@@ -51,6 +51,8 @@ const handleLogin =  async (req, res) => {
         const otherUsers = await User.find({username: { $ne: foundUser.username }});
         
         res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000}); // secure: true
+        console.log(foundUser._id)
+        req.session.userId = foundUser._id; // Store user ID in session
         res.json({ accessToken })
     } else {
         res.status(401).json({'message':'Login credentials not valid'})

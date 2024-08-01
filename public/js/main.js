@@ -1,7 +1,6 @@
 // Making authenticated requests
 async function fetchWithToken(url, options = {}) {
     const token = localStorage.getItem('accessToken'); // Retrieve access token from local storage
-
     const response = await fetch(url, {
         ...options,
         headers: {
@@ -10,8 +9,7 @@ async function fetchWithToken(url, options = {}) {
         },
         credentials: 'include', // Ensure cookies are sent with cross-origin requests
     });
-
-    if (response.status === 401) { // Token expired
+    if (response.status === 403) { // Token expired
         const refreshResponse = await fetch('/auth/refresh', {
             method: 'POST',
             credentials: 'include', // Include cookies in cross-origin requests
