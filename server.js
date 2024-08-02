@@ -13,6 +13,7 @@ const cookieParser = require('cookie-parser');
 const credentials = require('./middleware/credentials');
 const socketIo = require('socket.io');
 const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo')
 const connectDB = require('./config/dbConn');
 const PORT = process.env.PORT || 8000;
 const http = require('http');
@@ -56,10 +57,12 @@ app.use(express.static(path.join(__dirname, '/public')));
 
 // Routes
 app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false
-}));
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.DATABASE_URI }),
+    cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+  }));
 
 app.use('/', require('./routes/root'));
 app.use('/register', require('./routes/register'));
@@ -81,12 +84,17 @@ io.on('connection', (socket,req) => {
     console.log('User has connected');
     // Get user ID from socket handshake query
     const userId = socket.userId
-    console.log(userId)
     if (userId) {
       onlineUsers.set(userId, socket.id);
       io.emit('userStatus', { userId, online: true });
     }
-  
+    
+    socket.on('sendMessage', async(data) => {
+        console.log('data ' + data.conversationId)
+        const {sendMessage} = require('./controllers/userController')
+        await sendMessage(data, io, userId);
+        
+    })
     socket.on('join', (conversationId) => {
       socket.join(conversationId);
     });

@@ -225,7 +225,7 @@
             let chatList = document.querySelector('.chat-list')
             var friends = ''
             data.forEach(friend => {
-                friends += `<a href="#" class="d-flex align-items-center" onclick="fetchConversation('${friend._id}')">
+                friends += `<a href="#" class="d-flex align-items-center receiverUser" onclick="fetchConversation('${friend._id}')" data-id="${friend._id}">
                                 <div class="flex-shrink-0">
                                     <img class="img-fluid" src="https://mehedihtml.com/chatbox/assets/img/user.png" alt="user img">
                                     <span class="active"></span>
@@ -240,25 +240,7 @@
         })
         .catch(error => console.error('Error:', error));
 
-        function fetchConversation(receiverId){
-            processRequest('/api/fetchMessages',{
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ receiverId })
-            })
-            .then(response => response.json())
-            .then((data) => {
-                if(data.NoMessage){
-                    $('.noMessage').removeClass('d-none')
-                    $('.noMessage').text(data.NoMessage)
-                    $('.msg-body').data('receiver',receiverId)
-                }
-                console.log($('.msg-body').data())
-            })
-            .catch(error => console.log(error))
-        }
+        
 
         
 

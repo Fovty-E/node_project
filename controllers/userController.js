@@ -28,25 +28,54 @@ const displayChatUsers = async (req, res) => {
 }
 
 const fetchMessages = async (req, res) => {
-    const senderId = req.session.userId;
-    const receiverId = req.body.receiverId;
     
-    console.log(req.body)
     try {
+        const senderId = req.session.userId;
+    
+        const receiverId = req.body.receiverId;
         let conversationId = await getConversationId(senderId, receiverId);
-        console.log(conversationId)
+        
         if(!conversationId) {
             conversation = await createConversation([senderId, receiverId]);
             conversationId = conversation._id
-            console.log('new '+conversationId)
             // return res.status(200).json({ NoMessage: 'Send a message to start a conversation' });
         }
-        const messages = await Message.find({ conversationId }).sort({ timestamp: 1 }).exec();
-        console.log(messages)
-        if(!messages) return res.status(200).json({ NoMessage: 'Send a message to start a conversation' });
-        res.status(200).json(messages)
+        const messages = await Message.find({ conversationId }).select('text timestamp').sort({ timestamp: 1 }).exec();
+        if(messages.length < 1 ) return res.status(200).json({ conversationId, NoMessage: 'Send a message to start a conversation' });
+        res.status(200).json({conversationId, messages})
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 }
-module.exports = { fetchDashboard, displayChatUsers, fetchMessages }
+
+const sendMessage = async (data, io, userId) => {
+    const { conversationId, receiverId, text } = data;
+    // Convert conversationId and receiverId to ObjectId
+    console.log('con '+receiverId)
+    const conversationObjectId = new mongoose.Types.ObjectId(`${conversationId}`);
+    const receiverObjectId = new mongoose.Types.ObjectId(`${receiverId}`);
+    // Create a new message
+    const message = new Message({
+        conversationId: conversationObjectId,
+        sender: userId,
+        receiver: receiverObjectId,
+        text
+    });
+
+    try {
+        // Save the message to the database
+        const savedMessage = await message.save();
+        // Emit the message to the relevant conversation
+        io.to(conversationId).emit('message', savedMessage);
+        await Conversation.findOneAndUpdate(
+            { _id: conversationObjectId }, 
+            {lastMessage: savedMessage._id, updatedAt: Date.now()},                     
+            { new: true,                    
+              runValidators: true }  
+        );
+        console.log('Message sent:', savedMessage);
+    } catch (error) {
+        console.error('Error saving message:', error);
+    }
+}
+module.exports = { fetchDashboard, displayChatUsers, fetchMessages, sendMessage }

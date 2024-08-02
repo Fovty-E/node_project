@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const User = require('../model/User')
 
 const authenticateSocket = (socket, next) => {
   
@@ -8,13 +9,13 @@ const authenticateSocket = (socket, next) => {
     : null;
     
   if (token) {
-    jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+    jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, async (err, decoded) => {
       if (err) {
         return next(new Error('Unauthorized'));
       }
-      
+      const foundUser = await User.findOne({refreshToken:token})
       // Attach user information to the socket object
-      socket.userId = decoded.username;
+      socket.userId = foundUser._id;
       // socket.user = decoded; // Optional: Attach the entire decoded payload
       next();
     });
