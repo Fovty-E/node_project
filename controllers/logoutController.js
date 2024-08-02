@@ -24,6 +24,12 @@ const handleLogout =  async (req, res) => {
     await foundUser.save()
  
     res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true }) // secure: true - only serves on https
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({ message: 'Logout failed', error: err });
+        }
+        res.json({ message: 'Logged out successfully' });
+    });
     res.sendStatus(204);
 }
 

@@ -1,0 +1,26 @@
+const jwt = require('jsonwebtoken');
+
+const authenticateSocket = (socket, next) => {
+  
+  const token = socket.request.headers.cookie
+    ? socket.request.headers.cookie.split('; ').find(row => row.startsWith('jwt='))
+      .split('=')[1]
+    : null;
+    
+  if (token) {
+    jwt.verify(token, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+      if (err) {
+        return next(new Error('Unauthorized'));
+      }
+      
+      // Attach user information to the socket object
+      socket.userId = decoded.username;
+      // socket.user = decoded; // Optional: Attach the entire decoded payload
+      next();
+    });
+  } else {
+    next(new Error('No token provided'));
+  }
+};
+
+module.exports = authenticateSocket;

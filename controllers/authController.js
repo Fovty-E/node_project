@@ -51,7 +51,6 @@ const handleLogin =  async (req, res) => {
         const otherUsers = await User.find({username: { $ne: foundUser.username }});
         
         res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000}); // secure: true
-        console.log(foundUser._id)
         req.session.userId = foundUser._id; // Store user ID in session
         res.json({ accessToken })
     } else {

@@ -5,6 +5,6 @@ const userController = require('../../controllers/userController')
 
 router.post('/dashboard',userController.fetchDashboard)
 router.post('/chat',userController.displayChatUsers)
-router.post('/fetchConversation',userController.fetchConversation)
+router.post('/fetchMessages',userController.fetchMessages)
 
 module.exports = router

@@ -1,5 +1,7 @@
+
+
 // Making authenticated requests
-async function fetchWithToken(url, options = {}) {
+async function processRequest(url, options = {}) {
     const token = localStorage.getItem('accessToken'); // Retrieve access token from local storage
     const response = await fetch(url, {
         ...options,
@@ -19,7 +21,7 @@ async function fetchWithToken(url, options = {}) {
             const { accessToken } = await refreshResponse.json();
             localStorage.setItem('accessToken', accessToken);
             // Retry the original request
-            return fetchWithToken(url, options);
+            return processRequest(url, options);
         } else {
             // Handle redirection to login
             window.location.href = '/login';
