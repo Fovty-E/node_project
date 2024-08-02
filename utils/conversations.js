@@ -11,8 +11,11 @@ async function createConversation(participants) {
 }
 
 async function getConversationId(user1Id, user2Id) {
+    // Convert string IDs to ObjectId
+    const user1ObjectId = new mongoose.Types.ObjectId(user1Id);
+    const user2ObjectId = new mongoose.Types.ObjectId(user2Id);
     const conversation = await Conversation.findOne({
-        participants: { $all: [user1Id, user2Id] }
+        participants: { $all: [user1ObjectId, user2ObjectId] }
     });
 
     return conversation ? conversation._id : null;

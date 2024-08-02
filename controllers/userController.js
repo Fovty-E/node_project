@@ -42,6 +42,7 @@ const fetchMessages = async (req, res) => {
             // return res.status(200).json({ NoMessage: 'Send a message to start a conversation' });
         }
         const messages = await Message.find({ conversationId }).sort({ timestamp: 1 }).exec();
+        console.log(messages)
         if(!messages) return res.status(200).json({ NoMessage: 'Send a message to start a conversation' });
         res.status(200).json(messages)
     } catch (error) {
