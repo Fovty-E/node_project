@@ -22,15 +22,39 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log(`User ${userId} is ${online ? 'online' : 'offline'}`);
             console.log($('body').data('id'));
             if (userId !== $('body').data('id')) {
+                
                 const statusElement = $(`.${userId}-status`)
                 if (statusElement) {
-                    statusElement.text(online ? 'online' : 'offline');
-                    $('.active-status').text(online ? 'online' : 'offline');
+                    
+                    if(online){
+                        statusElement.find('.status').addClass('active');
+                    } else {
+                        statusElement.find('.status').removeClass('active');
+                    }
+                    statusElement.find('p').text(online ? 'online' : 'offline');
+                    // $('.active-status').text(online ? 'online' : 'offline');
                 }
             }
         });
+
         window.fetchConversation = async function(e) { // Attach function to the window object
             var receiverId = e.dataset.id
+            const statusElement = $(`.chatHeader`)
+            console.log($(e).find('.status').hasClass('active'))
+            if ($(e).find('.status').hasClass('active')) {
+                document.querySelector('.chatHeader .status').classList.add('active')
+                document.querySelector('.chatHeader p').innerText = 'offline'
+                console.log(document.querySelector('.chatHeader .status').classList)
+            } else {
+                $(`.chatHeader`).find('.status').removeClass('active')
+                $(`.chatHeader`).find('p').text('online')
+            }
+            statusElement.find('.status').removeClass('active');
+            statusElement.find('p').text('offline');
+            var userId = document.querySelector('body').dataset.id
+            console.log(receiverId)
+            // $('.chatHeader').attr('class', `d-flex align-items-center chatHeader ${receiverId}-status`)
+            socket.emit('userStatus', { userId, online: true });
             try {
                 document.querySelector('.recName').innerText = e.dataset.username
                 const response = await fetch('/api/fetchMessages', {
@@ -48,7 +72,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 if (data.NoMessage) {
                     document.querySelector('.noMessage').classList.remove('d-none');
                     document.querySelector('.noMessage').textContent = data.NoMessage;
-                    console.log('dhcsb')
                 }
                 if(data.messages){
                     document.querySelector('.noMessage').classList.add('d-none');
@@ -65,6 +88,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                     <span class="time">${new Date(message.timestamp).toLocaleTimeString()}</span>
                                 </li>` 
                         }
+                       
                         
                         // console.log(`Message: ${message.text}, Sent at: ${formattedTime}`);
                         // Update your chat UI with the message and formatted time
@@ -129,14 +153,14 @@ document.addEventListener("DOMContentLoaded", function() {
         let chatList = document.querySelector('.chat-list');
         let friendsHTML = '';
         friends.forEach(friend => {
-            friendsHTML += `<a href="#" class="d-flex align-items-center receiverUser" onclick="fetchConversation(this)" data-email="${friend.email || ""}" data-username="${friend.username}" data-id="${friend._id}">
+            friendsHTML += `<a href="#" class="d-flex align-items-center receiverUser ${friend._id}-status" onclick="fetchConversation(this)" data-email="${friend.email || ""}" data-username="${friend.username}" data-id="${friend._id}">
                                 <div class="flex-shrink-0">
                                     <img class="img-fluid" src="https://icons.veryicon.com/png/o/miscellaneous/two-color-icon-library/user-286.png" alt="user img">
                                     <span class="status"></span>
                                 </div>
                                 <div class="flex-grow-1 ms-3">
                                     <h3>${friend.username}</h3>
-                                    <p class='${friend._id}-status'>offline</p>
+                                    <p class=''>offline</p>
                                 </div>
                             </a>`;
         });

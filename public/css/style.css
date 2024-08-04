@@ -349,7 +349,7 @@ a.add img {
     text-decoration: none;
 }
 
-.chat-list .status {
+.chat-list .status, .chatHeader .status {
     display: block;
     content: '';
     clear: both;
@@ -362,18 +362,10 @@ a.add img {
     border-radius: 50%;
     border: 2px solid #fff;
 }
-.chat-list .offline {
-    display: block;
-    content: '';
-    clear: both;
-    position: absolute;
-    bottom: 10px;
-    left: 40px;
-    height: 12px;
-    width: 12px;
-    background: #8c918f;
-    border-radius: 50%;
-    border: 2px solid #fff;
+.chat-list .active, .chatHeader .active {
+    
+    background: #09e68e;
+ 
 }
 .chat-list img, .msg-head img{
     height: 60px;
