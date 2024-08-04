@@ -11,6 +11,7 @@ async function processRequest(url, options = {}) {
         },
         credentials: 'include', // Ensure cookies are sent with cross-origin requests
     });
+    console.log(response.status)
     if (response.status === 403) { // Token expired
         const refreshResponse = await fetch('/auth/refresh', {
             method: 'POST',
@@ -27,6 +28,14 @@ async function processRequest(url, options = {}) {
             window.location.href = '/login';
         }
     }
+    if(response.status === 401){
+      // Handle redirection to login
+      window.location.href = '/login';
+    }
+    if(response.status === 400){
+        // Handle redirection to login
+        window.location.href = '/login';
+      }
 
     return response;
 }

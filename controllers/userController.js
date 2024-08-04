@@ -11,7 +11,7 @@ const fetchDashboard = async (req, res) => {
     if(!cookies?.jwt) return res.sendStatus(401);
     const refreshToken = cookies.jwt
     const foundUser = await User.findOne({ refreshToken }).exec()
-    if(!foundUser) res.sendStatus(400) // Bad request
+    if(!foundUser || foundUser == null) return res.sendStatus(400) // Bad request
     const { username, email } = foundUser
     res.json({username, email})
 }
@@ -24,25 +24,25 @@ const displayChatUsers = async (req, res) => {
     const foundUser = await User.findOne({ refreshToken }).exec()
     // Find other users (excluding the current user)
     const friends = await User.find({username: { $ne: foundUser.username }}, '_id username email').exec();
-    res.json(friends)
+    res.json({userid: foundUser._id, friends})
 }
 
 const fetchMessages = async (req, res) => {
     
     try {
-        const senderId = req.session.userId;
+        const userId = req.session.userId;
     
         const receiverId = req.body.receiverId;
-        let conversationId = await getConversationId(senderId, receiverId);
+        let conversationId = await getConversationId(userId, receiverId);
         
         if(!conversationId) {
-            conversation = await createConversation([senderId, receiverId]);
+            conversation = await createConversation([userId, receiverId]);
             conversationId = conversation._id
             // return res.status(200).json({ NoMessage: 'Send a message to start a conversation' });
         }
-        const messages = await Message.find({ conversationId }).select('text timestamp').sort({ timestamp: 1 }).exec();
+        const messages = await Message.find({ conversationId }).select('sender text timestamp').sort({ timestamp: 1 }).exec();
         if(messages.length < 1 ) return res.status(200).json({ conversationId, NoMessage: 'Send a message to start a conversation' });
-        res.status(200).json({conversationId, messages})
+        res.status(200).json({userId, conversationId, messages})
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -64,16 +64,17 @@ const sendMessage = async (data, io, userId) => {
 
     try {
         // Save the message to the database
-        const savedMessage = await message.save();
+        let savedMessage = await message.save();
+        savedMessage.userId = savedMessage.sender
+        const {_id, text, sender, timestamp} = savedMessage
         // Emit the message to the relevant conversation
-        io.to(conversationId).emit('message', savedMessage);
+        io.to(conversationId).emit('message', {_id, text, sender, timestamp, userId});
         await Conversation.findOneAndUpdate(
             { _id: conversationObjectId }, 
             {lastMessage: savedMessage._id, updatedAt: Date.now()},                     
             { new: true,                    
               runValidators: true }  
         );
-        console.log('Message sent:', savedMessage);
     } catch (error) {
         console.error('Error saving message:', error);
     }

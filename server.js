@@ -84,8 +84,10 @@ io.on('connection', (socket,req) => {
     console.log('User has connected');
     // Get user ID from socket handshake query
     const userId = socket.userId
+
     if (userId) {
       onlineUsers.set(userId, socket.id);
+      console.log('user '+ userId)
       io.emit('userStatus', { userId, online: true });
     }
     
