@@ -48,7 +48,7 @@
         <a href="/dashboard">Home</a>
         <a href="/dashboard/chat">Chat</a>
         <a href="#settings">Settings</a>
-        <a href="#logout" id="logout">Logout</a>
+        <a href="/logout" id="logout">Logout</a>
     </div>
 
     <!-- Main Content -->
@@ -86,22 +86,69 @@
         </div>
     </div>
     <script src="/js/main.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
     <script>
-        processRequest('/api/dashboard',{'method':'POST'})
-            .then(response => response.json())
-            .then((data) => {
-                document.querySelector('#username').innerText = data.username
-                document.querySelector('#email').innerText = data.email
-                console.log(data)
-            })
-            .catch(error => console.error('Error:', error));
+        let socket;
 
-        document.getElementById('logout').addEventListener('click', function (event) {
-            event.preventDefault();
-            // Perform logout actions here, such as clearing tokens or redirecting
-            alert('Logging out...');
-            // Example: window.location.href = '/auth/logout';
+function initializeSocket(userId) {
+    if (!socket) {
+        socket = io();
+
+        socket.on('connect', () => {
+            console.log('Connected:', socket.id);
+            socket.emit('userOnline', userId);
         });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected:', socket.id);
+            // Optionally, you can set the user status to offline here
+            // io.emit('userStatus', { userId, online: false });
+        });
+
+        socket.on('forceDisconnect', () => {
+            socket.disconnect();
+            window.location.href = '/login'; // Redirect to login page
+        });
+
+        socket.on('userStatus', (status) => {
+            const { userId, online } = status;
+            console.log(`User ${userId} is ${online ? 'online' : 'offline'}`);
+            // Update your UI to reflect user online status
+        });
+    }
+}
+
+async function fetchUserData() {
+    try {
+        const response = await processRequest('/api/dashboard', { method: 'POST' });
+        const data = await response.json();
+        document.querySelector('#username').innerText = data.username;
+        document.querySelector('#email').innerText = data.email;
+        initializeSocket(data.userId);
+
+        document.getElementById('logout').addEventListener('click', async (event) => {
+            event.preventDefault();
+            try {
+                const response = await processRequest('/logout', { method: 'GET', credentials: 'include' });
+                if (response.ok) {
+                    socket.emit('forceDisconnect'); // Notify server to disconnect socket
+                    socket.disconnect(); // Disconnect socket on client side
+                    window.location.href = "/login";
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Call this function when the page loads
+fetchUserData();
+
+
+        
     </script>
     <!-- Bootstrap JS and dependencies -->
     

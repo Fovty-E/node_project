@@ -1,36 +1,34 @@
 const User = require('../model/User');
-const fsPromises = require('fs').promises;
-const path = require('path');
 
-
-
-const handleLogout =  async (req, res) => {
+const handleLogout = async (req, res) => {
     // On client, also delete the accessToken
-    const cookies = req.cookies
+    const cookies = req.cookies;
+    if (!cookies?.jwt) return res.sendStatus(204); // No content
 
-    if(!cookies?.jwt) return res.sendStatus(204); // no content
-    const refreshToken = cookies.jwt
+    const refreshToken = cookies.jwt;
 
-    // Is refreshToken in db
-    const foundUser = await User.findOne({ refreshToken }).exec()
-
-    if(!foundUser){
-        res.clearCookie('jwt', { httpOnly: true })
-         return res.sendStatus(204) //Unauthorized
+    // Check if refreshToken is in the database
+    const foundUser = await User.findOne({ refreshToken }).exec();
+    if (!foundUser) {
+        res.clearCookie('jwt', { httpOnly: true });
+        return res.sendStatus(204); // No content
     }
-    
-    // Delete  refreshToken in db
+
+    // Delete the refreshToken in the database
     foundUser.refreshToken = '';
-    await foundUser.save()
- 
-    res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true }) // secure: true - only serves on https
+    await foundUser.save();
+
+    res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true }); // secure: true - only serves on HTTPS
+
+    // Emit forceDisconnect event before destroying the session
+    req.io.to(foundUser._id.toString()).emit('forceDisconnect');
+
     req.session.destroy(err => {
         if (err) {
             return res.status(500).json({ message: 'Logout failed', error: err });
         }
-        res.json({ message: 'Logged out successfully' });
+        return res.json({ message: 'Logged out successfully' });
     });
-    res.sendStatus(204);
-}
+};
 
-module.exports = { handleLogout }
+module.exports = { handleLogout };

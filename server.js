@@ -69,46 +69,71 @@ app.use('/register', require('./routes/register'));
 app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'login.html'));
 });
-app.use('/auth', require('./routes/auth'));
-app.use('/refresh', require('./routes/refresh'));
-app.use('/logout', require('./routes/logout'));
 app.use('/dashboard', require('./routes/user'));
-app.use('/api', require('./routes/api/user'));
-app.use('/subdir', require('./routes/subdir'));
-app.use('/employees', require('./routes/api/employees'));
 
+app.use('/auth', require('./routes/auth'));
 app.use(verifyJWT);
+app.use((req, res, next) => {
+    req.io = io;
+    next();
+});
 // Middleware to authenticate socket connections
 io.use(authenticateSocket);
-io.on('connection', (socket,req) => {
-    console.log('User has connected');
+// Middleware to store the io instance for later use
+
+io.on('connection', (socket) => {
+    
     // Get user ID from socket handshake query
     const userId = socket.userId
+    console.log('User '+userId+' has connected');
+    socket.on('userOnline', (userId) => {
+        onlineUsers.set(userId, socket.id);
+        // Send to other users that newly connected user is online
+        socket.broadcast.emit('userStatus', { userId, online: true });
 
-    if (userId) {
-      onlineUsers.set(userId, socket.id);
-      console.log('user '+ userId)
-      io.emit('userStatus', { userId, online: true });
-    }
+        // Send current online users to the newly connected user
+        onlineUsers.forEach((socketId, onlineUserId) => {
+            if (onlineUserId !== userId) {
+                socket.emit('userStatus', { userId: onlineUserId, online: true });
+            }
+        });
+    });
     
     socket.on('sendMessage', async(data) => {
         console.log('data ' + data.conversationId)
         const {sendMessage} = require('./controllers/userController')
-        await sendMessage(data, io, userId);
+        await sendMessage(data, socket, userId);
         
     })
     socket.on('join', (conversationId) => {
       socket.join(conversationId);
     });
-  
+    console.log(onlineUsers)
+        console.log('socket ' + socket.id)
     socket.on('disconnect', () => {
-      console.log('User disconnected');
-      if (userId) {
-        onlineUsers.delete(userId);
-        io.emit('userStatus', { userId, online: false });
-      }
+        
+        const userId = [...onlineUsers].find(([key, value]) => value === socket.id);
+        console.log('dd'+userId)
+        if(userId){
+            onlineUsers.delete(userId[0]);
+            // Broadcast this user's offline status to all other users
+            io.emit('userStatus', { userId:userId[0], online: false });
+            console.log('A user disconnected');
+        }
+        
+        
     });
+   
   });
+app.use('/refresh', require('./routes/refresh'));
+app.use('/logout', require('./routes/logout'));
+
+app.use('/api', require('./routes/api/user'));
+app.use('/subdir', require('./routes/subdir'));
+app.use('/employees', require('./routes/api/employees'));
+
+
+
 app.all('*', (req, res) => {
   res.status(404);
   if (req.accepts('html')) {
@@ -123,6 +148,6 @@ app.all('*', (req, res) => {
 app.use(errorHandler);
 
 mongoose.connection.once('open', () => {
-  console.log('Connected to MongoDB');
+  console.log('Connected to MongoDB '+ Date.now() );
   server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 });

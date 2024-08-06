@@ -13,7 +13,8 @@ const fetchDashboard = async (req, res) => {
     const foundUser = await User.findOne({ refreshToken }).exec()
     if(!foundUser || foundUser == null) return res.sendStatus(400) // Bad request
     const { username, email } = foundUser
-    res.json({username, email})
+    const userId = foundUser._id
+    res.json({username, email, userId})
 }
 
 const displayChatUsers = async (req, res) => {
@@ -48,7 +49,7 @@ const fetchMessages = async (req, res) => {
     }
 }
 
-const sendMessage = async (data, io, userId) => {
+const sendMessage = async (data, socket, userId) => {
     const { conversationId, receiverId, text } = data;
     // Convert conversationId and receiverId to ObjectId
     console.log('con '+receiverId)
@@ -68,7 +69,7 @@ const sendMessage = async (data, io, userId) => {
         savedMessage.userId = savedMessage.sender
         const {_id, text, sender, timestamp} = savedMessage
         // Emit the message to the relevant conversation
-        io.to(conversationId).emit('message', {_id, text, sender, timestamp, userId});
+        socket.to(conversationId).emit('message', {_id, text, sender, timestamp, userId});
         await Conversation.findOneAndUpdate(
             { _id: conversationObjectId }, 
             {lastMessage: savedMessage._id, updatedAt: Date.now()},                     

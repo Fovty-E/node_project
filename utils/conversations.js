@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 async function createConversation(participants) {
     // Ensure participants are ObjectIds
-    const participantIds = participants.map(participant => new mongoose.Types.ObjectId(participant));
+    const participantIds = participants.map(participant => new mongoose.Types.ObjectId(`${participant}`));
 
     const conversation = new Conversation({ participants: participantIds});
     await conversation.save();

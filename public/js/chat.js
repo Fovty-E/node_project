@@ -20,8 +20,7 @@ document.addEventListener("DOMContentLoaded", function() {
         socket.on('userStatus', (status) => {
             const { userId, online } = status;
             console.log(`User ${userId} is ${online ? 'online' : 'offline'}`);
-            console.log($('body').data('id'));
-            if (userId !== $('body').data('id')) {
+            // if (userId !== $('body').data('id')) {
                 
                 const statusElement = $(`.${userId}-status`)
                 if (statusElement) {
@@ -34,27 +33,28 @@ document.addEventListener("DOMContentLoaded", function() {
                     statusElement.find('p').text(online ? 'online' : 'offline');
                     // $('.active-status').text(online ? 'online' : 'offline');
                 }
-            }
+            // }
         });
-
+        socket.on('connect', () => {
+            var userId = $('body').data('id')
+            console.log('Connected to server');
+            socket.emit('userOnline', userId);
+        });
         window.fetchConversation = async function(e) { // Attach function to the window object
             var receiverId = e.dataset.id
             const statusElement = $(`.chatHeader`)
-            console.log($(e).find('.status').hasClass('active'))
             if ($(e).find('.status').hasClass('active')) {
-                document.querySelector('.chatHeader .status').classList.add('active')
-                document.querySelector('.chatHeader p').innerText = 'offline'
-                console.log(document.querySelector('.chatHeader .status').classList)
+                $(`.chatHeader`).find('.status').addClass('active')
+                $(`.chatHeader`).find('p').text('online')
             } else {
                 $(`.chatHeader`).find('.status').removeClass('active')
-                $(`.chatHeader`).find('p').text('online')
+                $(`.chatHeader`).find('p').text('offline')
             }
-            statusElement.find('.status').removeClass('active');
-            statusElement.find('p').text('offline');
+            
             var userId = document.querySelector('body').dataset.id
             console.log(receiverId)
             // $('.chatHeader').attr('class', `d-flex align-items-center chatHeader ${receiverId}-status`)
-            socket.emit('userStatus', { userId, online: true });
+            // socket.emit('userStatus', { userId, online: true });
             try {
                 document.querySelector('.recName').innerText = e.dataset.username
                 const response = await fetch('/api/fetchMessages', {
@@ -139,12 +139,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     
         socket.on('message', (data) => {
-            const receiverId = document.querySelector('.msg-body').dataset.receiver;
-            if(data.sender !== receiverId){
-                return;
-            }
             renderMessage('receiver',data)
-            // Update your chat UI with the new message
         });
     })
     .catch(error => console.error('Error:', error));

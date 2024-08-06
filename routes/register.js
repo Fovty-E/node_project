@@ -8,4 +8,5 @@ router.post('/', registerController.handleNewUser)
 router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname,'..','views','register.html'))
 })
+router.post('/resendVerification', registerController.resendVerification)
 module.exports = router
