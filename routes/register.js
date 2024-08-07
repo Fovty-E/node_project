@@ -9,4 +9,5 @@ router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname,'..','views','register.html'))
 })
 router.post('/resendVerification', registerController.resendVerification)
+router.get('/verify', registerController.handleVerifyToken)
 module.exports = router

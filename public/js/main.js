@@ -1,4 +1,18 @@
+async function resendVerification(userId){
+    let response = await fetch('/register/resendVerification',{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({userId})
+        })
+    let result  = response.json()
 
+    if (response.ok) {
+        console.log(response)
+    }
+    
+}
 
 // Making authenticated requests
 async function processRequest(url, options = {}) {

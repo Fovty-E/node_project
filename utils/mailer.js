@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 // Function to send email
 const sendEmail = async (to, subject, text, html) => {
     const mailOptions = {
-        from: `Chat App`,
+        from: `Chat App <admin@reserie.com>`,
         to,
         subject,
         text,

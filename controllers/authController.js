@@ -25,6 +25,8 @@ const handleLogin =  async (req, res) => {
     // evaluate password
     const match = await bcrypt.compare(password, foundUser.password)
     if (match) {
+        console.log(foundUser)
+        if(!foundUser.verified || foundUser.verified == 0) return res.status(403).json({message: `Account not verified, check your email for a verification mail from us or <a href="#" onclick="resendVerification('${foundUser._id}')">click here</a>`})
         const roles = Object.values(foundUser.roles);
         // create JWTs
         const accessToken = jwt.sign(

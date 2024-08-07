@@ -28,6 +28,7 @@
             <button type="submit" class="btn btn-primary btn-block">Login</button>
         </form>
     </div>
+    <script src="/js/main.js"></script>
     <script>
         document.querySelector('#login-form').addEventListener("submit", async function(event){  
             event.preventDefault()
@@ -53,7 +54,7 @@
                     window.location.href = "/dashboard"
                 } else {
                     statusMessage.className = 'alert alert-danger';
-                    statusMessage.innerText = result.message;
+                    statusMessage.innerHTML = result.message;
                 }
 
                 

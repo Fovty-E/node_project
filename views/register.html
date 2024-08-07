@@ -40,24 +40,9 @@
             <button type="submit" class="btn btn-primary btn-block">Register</button>
         </form>
     </div>
-    <a href="#" onclick="resendVerification('66b2434e096a55da9734d677')">Click Here</a>
     <script src="/js/main.js"></script>
     <script>
-        async function resendVerification(userId){
-            let response = await fetch('/register/resendVerification',{
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({userId})
-                })
-            let result  = response.json()
-
-            if (response.ok) {
-                consonle.log(response)
-            }
-            
-        }
+        
         document.querySelector('#register-form').addEventListener("submit", async function(event){  
             event.preventDefault()
             
@@ -79,6 +64,7 @@
                 if (response.ok) {
                     statusMessage.className = 'alert alert-success';
                     document.querySelector('#register-form').reset();
+                    window.location.href = "/login";
                 } else {
                     statusMessage.className = 'alert alert-danger';
                 }

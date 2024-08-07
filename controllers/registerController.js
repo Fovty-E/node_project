@@ -35,7 +35,7 @@ const handleNewUser = async (req, res) => {
             
             
             var token = jwt.sign({ userId }, process.env.EMAIL_VERIFICATION_SECRET, {expiresIn: '10m'})
-            var verificationUrl = `${process.env.SITE_URL}/auth/verify?token=${token}`
+            var verificationUrl = `${process.env.SITE_URL}/register/verify?token=${token}`
             var subject = 'Account Verification'
             var text = `Hello ${firstname},\n\nThank you for registering with our service!`
             var html = `<p>Hello ${username},</p><p>Thank you for registering with our service!</p>
@@ -45,20 +45,19 @@ const handleNewUser = async (req, res) => {
         const mailSent = await sendEmail(email, subject, text, html)
             
         }
-        res.status(201).json({ 'message': `New user ${username} created! if you didn't get a verification mail <a onclick="resendVerification(${userId})">Click Here</a>` })
+        res.status(201).json({ 'message': `New user ${username} created! if you didn't get a verification mail <a href="#" onclick="resendVerification(${userId})">Click Here</a>` })
     } catch (err) {
         res.status(500).json({ 'message': err.message })
     }
 }
 
 const resendVerification = async (req, res) => {
-    console.log(req.body)
     const userId = new mongoose.Types.ObjectId(`${req.body.userId}`)
     const foundUser = await User.findById(userId)
     if(!foundUser) return res.sendStatus(401)
     const { firstname, lastname, username, email } = foundUser
         var token = jwt.sign({ userId }, process.env.EMAIL_VERIFICATION_SECRET, {expiresIn: '10m'})
-        var verificationUrl = `${process.env.SITE_URL}/auth/verify?token=${token}`
+        var verificationUrl = `${process.env.SITE_URL}/register/verify?token=${token}`
         var subject = 'Account Verification'
         var text = `Hello ${firstname},\n\nThank you for registering with our service!`
         var html = `<p>Hello ${username},</p><p>Thank you for registering with our service!</p>
@@ -66,6 +65,31 @@ const resendVerification = async (req, res) => {
                     <p>Click on link below to verify your account</p><br><a href="${verificationUrl}" target="_blank">${verificationUrl}</a> 
                     `
     const mailSent = await sendEmail(email, subject, text, html)
+    res.status(200).json({ message: 'Email Sent' })
 }
 
-module.exports = { handleNewUser, resendVerification }
+const handleVerifyToken = async (req, res) => {
+    const token = req.query.token;
+    if (!token) {
+        return res.status(400).json({ message: 'Token is missing' });
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.EMAIL_VERIFICATION_SECRET);
+    console.log(decoded);
+    const user = await User.findById(decoded.userId)
+    if(!user) return res.sendStatus(400)
+    user.verified = 1;
+    user.save()
+    res.status(200).json({ message: 'Email verified successfully' });
+    console.log(user)
+    } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            return res.status(400).json({ message: 'Token has expired' });
+        }
+        console.error('Token verification failed:', error);
+        res.status(400).json({ message: 'Invalid token' });
+    }
+    
+}
+
+module.exports = { handleNewUser, resendVerification, handleVerifyToken }

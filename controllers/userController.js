@@ -12,9 +12,9 @@ const fetchDashboard = async (req, res) => {
     const refreshToken = cookies.jwt
     const foundUser = await User.findOne({ refreshToken }).exec()
     if(!foundUser || foundUser == null) return res.sendStatus(400) // Bad request
-    const { username, email } = foundUser
+    const { username, email, firstname, lastname } = foundUser
     const userId = foundUser._id
-    res.json({username, email, userId})
+    res.json({username, email, userId, firstname, lastname})
 }
 
 const displayChatUsers = async (req, res) => {

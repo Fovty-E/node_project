@@ -63,7 +63,8 @@
                     <h5>User Information</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Name:</strong> <span id="username"></span></p>
+                    <p><strong>Name:</strong> <span id="name"></span></p>
+                    <p><strong>Username:</strong> <span id="username"></span></p>
                     <p><strong>Email:</strong> <span id="email"></span></p>
                     <!-- <p><strong>Role:</strong> Admin</p> -->
                 </div>
@@ -122,6 +123,7 @@ async function fetchUserData() {
     try {
         const response = await processRequest('/api/dashboard', { method: 'POST' });
         const data = await response.json();
+        document.querySelector('#name').innerText = data.firstname + ' ' + data.lastname;
         document.querySelector('#username').innerText = data.username;
         document.querySelector('#email').innerText = data.email;
         initializeSocket(data.userId);
