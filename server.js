@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
+const SequelizeStore = require('connect-session-sequelize')(session.Store);
 const csurf = require('csurf');
 const path = require('path');
 const cors = require('cors');
@@ -12,8 +13,7 @@ const authenticateSocket = require('./middleware/authenticateSocket');
 const cookieParser = require('cookie-parser');
 const credentials = require('./middleware/credentials');
 const socketIo = require('socket.io');
-const mongoose = require('mongoose');
-const MongoStore = require('connect-mongo')
+const db = require('./model')
 const connectDB = require('./config/dbConn');
 const PORT = process.env.PORT || 8000;
 const http = require('http');
@@ -55,14 +55,21 @@ app.use(express.static(path.join(__dirname, '/public')));
 
 
 
-// Routes
-app.use(session({
+// Initialize session store
+const sessionStore = new SequelizeStore({
+    db: db.sequelize,
+  });
+  
+  app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.DATABASE_URI }),
-    cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+    store: sessionStore,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
   }));
+
+// Sync session store
+sessionStore.sync();
 
 app.use('/', require('./routes/root'));
 app.use('/register', require('./routes/register'));
@@ -147,7 +154,9 @@ app.all('*', (req, res) => {
 
 app.use(errorHandler);
 
-mongoose.connection.once('open', () => {
-  console.log('Connected to MongoDB '+ Date.now() );
-  server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-});
+db.sequelize.sync({ force: true }).then(() => {
+    console.log('Database synced');
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`)
+    })
+})

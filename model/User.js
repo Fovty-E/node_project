@@ -1,39 +1,43 @@
-const mongoose = require('mongoose')
-const Schema = mongoose.Schema
-const userSchema = new Schema({
-    firstname: {
-        type: String,
-        required: true
-    },
-    lastname: {
-        type: String,
-        required: true
-    },
-    username: {
-        type: String,
-        required: true
-    },
-    email: {
-        type: String,
-        required: true
-    },
-    roles: {
-        User: {
-            type: Number,
-            default: 2001
+module.exports = (sequelize, DataTypes) => {
+    const User = sequelize.define('User', {
+      firstname: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      lastname: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      username: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          isEmail: true,
         },
-        Editor: Number,
-        Admin: Number
-    },
-    password: {
-        type: String,
-        required: true
-    },
-    verified: {
-        type: Number,
-        default: 0
-    },
-    refreshToken: String
-})
-
-module.exports = mongoose.model('User', userSchema)
+      },
+      roles: {
+        type: DataTypes.JSONB,
+        defaultValue: {
+          User: 2001,
+        },
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      verified: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      refreshToken: {
+        type: DataTypes.STRING,
+      },
+    });
+  
+    return User;
+  };
+  

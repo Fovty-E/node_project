@@ -4,6 +4,7 @@ const formatHelper = require('./formatHelper')
 const sendEmail = require('../utils/mailer')
 const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose');
+const pool = require('../config/db')
 
 
 const handleNewUser = async (req, res) => {
