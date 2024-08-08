@@ -13,8 +13,8 @@ const handleNewUser = async (req, res) => {
 
     if(password !== confirmPassword) return res.status(400).json({ 'message':'Password do not match' })
     //check for duplicate usernames in the db
-    const duplicateUser = await User.findOne({ username }).exec(); // use name:username if key and value are different
-    const duplicateEmail = await User.findOne({ email }).exec(); // use name:username if key and value are different
+    const duplicateUser = await User.findOne({ username }); // use name:username if key and value are different
+    const duplicateEmail = await User.findOne({ email }); // use name:username if key and value are different
 
     if(duplicateUser) return res.status(400).json({ 'message':'Username has been taken' })
     if(duplicateEmail) return res.status(400).json({ 'message':'Email has been taken' })

@@ -1,6 +1,10 @@
-module.exports = (sequelize, DataTypes) => {
-    const User = sequelize.define('User', {
-      firstname: {
+const { DataTypes, Model} = require('sequelize');
+const { sequelize } = require('./');
+
+
+class User extends Model {}
+User.init({
+    firstname: {
         type: DataTypes.STRING,
         allowNull: false,
       },
@@ -36,8 +40,13 @@ module.exports = (sequelize, DataTypes) => {
       refreshToken: {
         type: DataTypes.STRING,
       },
-    });
+}, {
+    sequelize,
+    modelName: 'User',
+    timestamps: true
+});
+
   
-    return User;
-  };
+    module.exports =  User;
+
   

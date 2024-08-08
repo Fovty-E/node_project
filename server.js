@@ -14,7 +14,6 @@ const cookieParser = require('cookie-parser');
 const credentials = require('./middleware/credentials');
 const socketIo = require('socket.io');
 const db = require('./model')
-const connectDB = require('./config/dbConn');
 const PORT = process.env.PORT || 8000;
 const http = require('http');
 
@@ -25,8 +24,6 @@ const io = socketIo(server);
 // In-memory store for online users
 const onlineUsers = new Map();
 
-// Connect to MongoDB
-connectDB();
 
 // Custom middleware logger
 app.use(logger);
@@ -50,26 +47,22 @@ app.use(cookieParser());
 // Serve static files
 app.use(express.static(path.join(__dirname, '/public')));
 
-// Authentication middleware for Socket.IO connections
 
-
-
-
-// Initialize session store
-const sessionStore = new SequelizeStore({
-    db: db.sequelize,
-  });
+// // Initialize session store
+// const sessionStore = new SequelizeStore({
+//     db: db.sequelize,
+//   });
   
-  app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    store: sessionStore,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
-  }));
+//   app.use(session({
+//     secret: process.env.SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: false,
+//     store: sessionStore,
+//     cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
+//   }));
 
-// Sync session store
-sessionStore.sync();
+// // // Sync session store
+// sessionStore.sync();
 
 app.use('/', require('./routes/root'));
 app.use('/register', require('./routes/register'));
@@ -79,14 +72,13 @@ app.get('/login', (req, res) => {
 app.use('/dashboard', require('./routes/user'));
 
 app.use('/auth', require('./routes/auth'));
-app.use(verifyJWT);
+// app.use(verifyJWT);
 app.use((req, res, next) => {
     req.io = io;
     next();
 });
 // Middleware to authenticate socket connections
-io.use(authenticateSocket);
-// Middleware to store the io instance for later use
+// io.use(authenticateSocket);
 
 io.on('connection', (socket) => {
     
@@ -154,7 +146,7 @@ app.all('*', (req, res) => {
 
 app.use(errorHandler);
 
-db.sequelize.sync({ force: true }).then(() => {
+db.sequelize.sync().then(() => {
     console.log('Database synced');
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`)

@@ -1,7 +1,7 @@
 const User = require('../model/User')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-
+const { Op } = require('sequelize');
 
 const handleLogin =  async (req, res) => {
     const { username, password } = req.body
@@ -19,7 +19,7 @@ const handleLogin =  async (req, res) => {
     } else {
         query.username = username;
     }
-    const foundUser = await User.findOne(query).exec()
+    const foundUser = await User.findOne(query)
     
     if(!foundUser) return res.sendStatus(400) //Unauthorized
     // evaluate password
@@ -50,7 +50,13 @@ const handleLogin =  async (req, res) => {
         await foundUser.save()
 
         // Find other users (excluding the current user)
-        const otherUsers = await User.find({username: { $ne: foundUser.username }});
+        const otherUsers = await User.findAll({
+            where: {
+                username: {
+                    [Op.ne]: foundUser.username
+                }
+            }
+        });
         
         res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000}); // secure: true
         req.session.userId = foundUser._id; // Store user ID in session

@@ -15,7 +15,11 @@ document.addEventListener("DOMContentLoaded", function() {
             );
             renderFriends(filteredFriends);
         });
-        const socket = io();
+        const socket = io({
+            auth: {
+                token: localStorage.getItem('accessToken'),
+            }
+        });
         // Handle user status updates only after the initial setup is done
         socket.on('userStatus', (status) => {
             const { userId, online } = status;

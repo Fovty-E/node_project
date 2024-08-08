@@ -1,24 +1,30 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const { DataTypes, Model } = require('sequelize');
+const { sequelize } = require('./');
 
-const conversationSchema = new Schema({
-    participants: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'User',
-            required: true
-        }
-    ],
-    lastMessage: {
-        type: Schema.Types.ObjectId,
-        ref: 'Message'
+class Conversation extends Model {}
+
+Conversation.init({
+    // Array of participant IDs
+    participants: {
+        type: DataTypes.JSONB, // Using JSONB to store an array of participant IDs
+        
+        allowNull: false
     },
-    updatedAt: {
-        type: Date,
-        default: Date.now
+    // Last message reference
+    lastMessage: {
+        type: DataTypes.INTEGER, // Assuming Message IDs are integers; use DataTypes.UUID if you're using UUIDs
+        allowNull: true
     }
-}, { timestamps: true });
+}, {
+    sequelize,
+    modelName: 'Conversation',
+    timestamps: true,
+    indexes: [
+        // Index for efficient querying
+        {
+            fields: ['participants']
+        }
+    ]
+});
 
-conversationSchema.index({ participants: 1 }); // Index for efficient querying
-
-module.exports = mongoose.model('Conversation', conversationSchema);
+module.exports = Conversation;

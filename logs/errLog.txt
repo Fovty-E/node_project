@@ -8,3 +8,6 @@
 20240801	14:52:17	8385cf2f-ec27-4cac-8f1a-3bb8fc036b22	Error: ENOENT: no such file or directory, stat 'C:\Users\ajewo\Desktop\node_class\express\routes\views\users\dashboard.html'
 20240801	14:52:19	3ba9c360-0139-4dc3-9d9b-cd84af0e7194	Error: ENOENT: no such file or directory, stat 'C:\Users\ajewo\Desktop\node_class\express\routes\views\users\dashboard.html'
 20240801	14:55:35	e3515dd1-e120-4683-8e94-2b304e35dfce	Error: ENOENT: no such file or directory, stat 'C:\Users\ajewo\Desktop\node_class\express\routes\views\users\dashboard.html'
+20240808	15:53:57	12c78c19-dd63-49dc-b35b-5c22a9a0bc69	Error: ENOENT: no such file or directory, stat 'C:\Users\ajewo\Desktop\node_class\express\node_modules\socket.io-client\dist\socket.io.js'
+20240808	15:54:01	285d0e3d-cca8-4030-93fe-795a5157093e	Error: ENOENT: no such file or directory, stat 'C:\Users\ajewo\Desktop\node_class\express\node_modules\socket.io-client\dist\socket.io.js'
+20240808	15:54:02	e2b78c52-038a-4d44-9dbd-6c427a1d4ab1	Error: ENOENT: no such file or directory, stat 'C:\Users\ajewo\Desktop\node_class\express\node_modules\socket.io-client\dist\socket.io.js'

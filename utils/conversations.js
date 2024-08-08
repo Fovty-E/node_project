@@ -1,24 +1,36 @@
-const Conversation = require('../model/Conversation');
-const mongoose = require('mongoose');
+const { Conversation } = require('../model'); // Adjust the path as needed
 
 async function createConversation(participants) {
-    // Ensure participants are ObjectIds
-    const participantIds = participants.map(participant => new mongoose.Types.ObjectId(`${participant}`));
+    // Ensure participants are integers or appropriate type (e.g., UUIDs)
+    // In this case, we're assuming integers; adjust if you're using UUIDs or another type.
+    const participantIds = participants.map(participant => parseInt(participant, 10));
 
-    const conversation = new Conversation({ participants: participantIds});
-    await conversation.save();
-    return conversation;
+    try {
+        const conversation = await Conversation.create({ participants: participantIds });
+        return conversation;
+    } catch (error) {
+        console.error('Error creating conversation:', error);
+        throw error;
+    }
 }
 
 async function getConversationId(user1Id, user2Id) {
-    // Convert string IDs to ObjectId
-    const user1ObjectId = new mongoose.Types.ObjectId(user1Id);
-    const user2ObjectId = new mongoose.Types.ObjectId(user2Id);
-    const conversation = await Conversation.findOne({
-        participants: { $all: [user1ObjectId, user2ObjectId] }
-    });
 
-    return conversation ? conversation._id : null;
+
+    try {
+        const conversation = await Conversation.findOne({
+            where: {
+                participants: {
+                    [Op.contains]: [user1Id, user2Id] // Using Op.contains for array fields
+                }
+            }
+        });
+
+        return conversation ? conversation.id : null; // 'id' is the default primary key field name in Sequelize
+    } catch (error) {
+        console.error('Error retrieving conversation ID:', error);
+        throw error;
+    }
 }
 
-module.exports = {createConversation, getConversationId};
+module.exports = { createConversation, getConversationId };
