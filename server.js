@@ -48,21 +48,21 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '/public')));
 
 
-// // Initialize session store
-// const sessionStore = new SequelizeStore({
-//     db: db.sequelize,
-//   });
+// Initialize session store
+const sessionStore = new SequelizeStore({
+    db: db.sequelize,
+  });
   
-//   app.use(session({
-//     secret: process.env.SESSION_SECRET,
-//     resave: false,
-//     saveUninitialized: false,
-//     store: sessionStore,
-//     cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
-//   }));
+  app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: sessionStore,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
+  }));
 
-// // // Sync session store
-// sessionStore.sync();
+// // Sync session store
+sessionStore.sync();
 
 app.use('/', require('./routes/root'));
 app.use('/register', require('./routes/register'));
@@ -73,12 +73,13 @@ app.use('/dashboard', require('./routes/user'));
 
 app.use('/auth', require('./routes/auth'));
 // app.use(verifyJWT);
+
 app.use((req, res, next) => {
     req.io = io;
     next();
 });
 // Middleware to authenticate socket connections
-// io.use(authenticateSocket);
+io.use(authenticateSocket);
 
 io.on('connection', (socket) => {
     

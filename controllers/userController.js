@@ -37,7 +37,7 @@ const displayChatUsers = async (req, res) => {
         },
         attributes: ['id', 'username', 'email']
     });
-    res.json({userid: foundUser._id, friends})
+    res.json({userid: foundUser.id, friends})
 }
 
 const fetchMessages = async (req, res) => {

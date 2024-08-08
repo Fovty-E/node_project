@@ -19,14 +19,14 @@ const handleLogin =  async (req, res) => {
     } else {
         query.username = username;
     }
-    const foundUser = await User.findOne(query)
+    const foundUser = await User.findOne({where: query})
     
     if(!foundUser) return res.sendStatus(400) //Unauthorized
     // evaluate password
     const match = await bcrypt.compare(password, foundUser.password)
     if (match) {
         console.log(foundUser)
-        if(!foundUser.verified || foundUser.verified == 0) return res.status(403).json({message: `Account not verified, check your email for a verification mail from us or <a href="#" onclick="resendVerification('${foundUser._id}')">click here</a>`})
+        if(!foundUser.verified || foundUser.verified == 0) return res.status(403).json({message: `Account not verified, check your email for a verification mail from us or <a href="#" onclick="resendVerification('${foundUser.id}')">click here</a>`})
         const roles = Object.values(foundUser.roles);
         // create JWTs
         const accessToken = jwt.sign(
@@ -59,7 +59,7 @@ const handleLogin =  async (req, res) => {
         });
         
         res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000}); // secure: true
-        req.session.userId = foundUser._id; // Store user ID in session
+        req.session.userId = foundUser.id; // Store user ID in session
         res.json({ accessToken })
     } else {
         res.status(401).json({'message':'Login credentials not valid'})
