@@ -1,4 +1,6 @@
-const { Conversation } = require('../model'); // Adjust the path as needed
+const Conversation = require('../model/Conversation'); // Adjust the path as needed
+const { Op } = require('sequelize')
+const db = require('../model')
 
 async function createConversation(participants) {
     // Ensure participants are integers or appropriate type (e.g., UUIDs)
@@ -15,22 +17,25 @@ async function createConversation(participants) {
 }
 
 async function getConversationId(user1Id, user2Id) {
-
-
     try {
         const conversation = await Conversation.findOne({
             where: {
                 participants: {
-                    [Op.contains]: [user1Id, user2Id] // Using Op.contains for array fields
+                    [Op.contains]: [user1Id, user2Id]  // Check if the array contains just user1Id
                 }
             }
         });
+        if (conversation && conversation.participants.includes(user2Id)) {
+            return conversation.id;
+        }
 
-        return conversation ? conversation.id : null; // 'id' is the default primary key field name in Sequelize
+        return null;
     } catch (error) {
         console.error('Error retrieving conversation ID:', error);
         throw error;
     }
 }
+
+
 
 module.exports = { createConversation, getConversationId };

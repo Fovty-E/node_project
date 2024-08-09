@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const filteredFriends = data.friends.filter(friend =>
                 friend.username.toLowerCase().includes(searchQuery)
             );
+            console.log(friends)
             renderFriends(filteredFriends);
         });
         const socket = io({
@@ -26,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log(`User ${userId} is ${online ? 'online' : 'offline'}`);
             // if (userId !== $('body').data('id')) {
                 
-                const statusElement = $(`.${userId}-status`)
+                const statusElement = $(`.status-${userId}`)
                 if (statusElement) {
                     
                     if(online){
@@ -61,11 +62,12 @@ document.addEventListener("DOMContentLoaded", function() {
             // socket.emit('userStatus', { userId, online: true });
             try {
                 document.querySelector('.recName').innerText = e.dataset.username
-                const response = await fetch('/api/fetchMessages', {
+                const response = await processRequest('/api/fetchMessages', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
+                    credentials: 'include', // Include cookies in cross-origin requests
                     body: JSON.stringify({ receiverId })
                 });
                 const data = await response.json();
@@ -143,6 +145,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     
         socket.on('message', (data) => {
+            console.log('here')
             renderMessage('receiver',data)
         });
     })
@@ -152,7 +155,7 @@ document.addEventListener("DOMContentLoaded", function() {
         let chatList = document.querySelector('.chat-list');
         let friendsHTML = '';
         friends.forEach(friend => {
-            friendsHTML += `<a href="#" class="d-flex align-items-center receiverUser ${friend._id}-status" onclick="fetchConversation(this)" data-email="${friend.email || ""}" data-username="${friend.username}" data-id="${friend._id}">
+            friendsHTML += `<a href="#" class="d-flex align-items-center receiverUser status-${friend.id}" onclick="fetchConversation(this)" data-email="${friend.email || ""}" data-username="${friend.username}" data-id="${friend.id}">
                                 <div class="flex-shrink-0">
                                     <img class="img-fluid" src="https://icons.veryicon.com/png/o/miscellaneous/two-color-icon-library/user-286.png" alt="user img">
                                     <span class="status"></span>

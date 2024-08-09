@@ -22,7 +22,6 @@ const fetchDashboard = async (req, res) => {
 
 const displayChatUsers = async (req, res) => {
     const cookies = req.cookies
-
     if(!cookies?.jwt) return res.sendStatus(401);
     const refreshToken = cookies.jwt
     const foundUser = await User.findOne({ 
@@ -43,9 +42,8 @@ const displayChatUsers = async (req, res) => {
 const fetchMessages = async (req, res) => {
     try {
         const userId = req.session.userId;
-        const receiverId = req.body.receiverId;
+        const receiverId = Number(req.body.receiverId);
         let conversationId = await getConversationId(userId, receiverId);
-        
         if (!conversationId) {
             const conversation = await createConversation([userId, receiverId]);
             conversationId = conversation.id; // Use 'id' as the primary key field
@@ -68,8 +66,9 @@ const fetchMessages = async (req, res) => {
 
 const sendMessage = async (data, socket, userId) => {
     const { conversationId, receiverId, text } = data;
-
+    
     try {
+        console.log(conversationId)
         // Create a new message
         const message = await Message.create({
             conversationId,

@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt')
 const formatHelper = require('./formatHelper')
 const sendEmail = require('../utils/mailer')
 const jwt = require('jsonwebtoken')
-const mongoose = require('mongoose');
 const pool = require('../config/db')
 
 
@@ -13,8 +12,8 @@ const handleNewUser = async (req, res) => {
 
     if(password !== confirmPassword) return res.status(400).json({ 'message':'Password do not match' })
     //check for duplicate usernames in the db
-    const duplicateUser = await User.findOne({ username }); // use name:username if key and value are different
-    const duplicateEmail = await User.findOne({ email }); // use name:username if key and value are different
+    const duplicateUser = await User.findOne({ where: { username }}); // use name:username if key and value are different
+    const duplicateEmail = await User.findOne({ where: {email} }); // use name:username if key and value are different
 
     if(duplicateUser) return res.status(400).json({ 'message':'Username has been taken' })
     if(duplicateEmail) return res.status(400).json({ 'message':'Email has been taken' })
@@ -30,7 +29,7 @@ const handleNewUser = async (req, res) => {
         });
 
         console.log(result)
-        const userId = result._id
+        const userId = result.id
         if (result) {
             //Create and store the new user
             
@@ -77,7 +76,7 @@ const handleVerifyToken = async (req, res) => {
     try {
         const decoded = jwt.verify(token, process.env.EMAIL_VERIFICATION_SECRET);
     console.log(decoded);
-    const user = await User.findById(decoded.userId)
+    const user = await User.findByPk(decoded.userId)
     if(!user) return res.sendStatus(400)
     user.verified = 1;
     user.save()

@@ -21,7 +21,7 @@ const handleLogin =  async (req, res) => {
     }
     const foundUser = await User.findOne({where: query})
     
-    if(!foundUser) return res.sendStatus(400) //Unauthorized
+    if(!foundUser) return res.status(400).json({'message' : 'Invalid credentials'}) //Unauthorized
     // evaluate password
     const match = await bcrypt.compare(password, foundUser.password)
     if (match) {

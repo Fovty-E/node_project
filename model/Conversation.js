@@ -13,6 +13,10 @@ Conversation.init({
     // Last message reference
     lastMessage: {
         type: DataTypes.INTEGER, // Assuming Message IDs are integers; use DataTypes.UUID if you're using UUIDs
+        references: {
+            model: 'Users', // This should be the table name of the User model
+            key: 'id'
+        },
         allowNull: true
     }
 }, {

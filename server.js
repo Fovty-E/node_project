@@ -49,20 +49,31 @@ app.use(express.static(path.join(__dirname, '/public')));
 
 
 // Initialize session store
-const sessionStore = new SequelizeStore({
-    db: db.sequelize,
-  });
-  
-  app.use(session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    store: sessionStore,
-    cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
-  }));
+const sessionStoreInstance = new SequelizeStore({
+  db: db.sequelize,
+});
+sessionStoreInstance.sync(); // Sync session store
 
-// // Sync session store
-sessionStore.sync();
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: sessionStoreInstance,
+  cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
+}));
+
+// Share session middleware with Socket.IO
+const sharedSession = require('express-socket.io-session');
+io.use(sharedSession(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  store: sessionStoreInstance,
+  cookie: { maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
+}), {
+  autoSave: true
+}));
+
 
 app.use('/', require('./routes/root'));
 app.use('/register', require('./routes/register'));
@@ -72,7 +83,7 @@ app.get('/login', (req, res) => {
 app.use('/dashboard', require('./routes/user'));
 
 app.use('/auth', require('./routes/auth'));
-// app.use(verifyJWT);
+app.use(verifyJWT);
 
 app.use((req, res, next) => {
     req.io = io;
@@ -90,7 +101,6 @@ io.on('connection', (socket) => {
         onlineUsers.set(userId, socket.id);
         // Send to other users that newly connected user is online
         socket.broadcast.emit('userStatus', { userId, online: true });
-
         // Send current online users to the newly connected user
         onlineUsers.forEach((socketId, onlineUserId) => {
             if (onlineUserId !== userId) {
@@ -100,7 +110,6 @@ io.on('connection', (socket) => {
     });
     
     socket.on('sendMessage', async(data) => {
-        console.log('data ' + data.conversationId)
         const {sendMessage} = require('./controllers/userController')
         await sendMessage(data, socket, userId);
         
@@ -149,7 +158,7 @@ app.use(errorHandler);
 
 db.sequelize.sync().then(() => {
     console.log('Database synced');
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`)
     })
 })
