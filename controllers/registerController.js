@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt')
 const formatHelper = require('./formatHelper')
 const sendEmail = require('../utils/mailer')
 const jwt = require('jsonwebtoken')
-const pool = require('../config/db')
 
 
 const handleNewUser = async (req, res) => {

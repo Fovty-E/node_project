@@ -93,7 +93,24 @@ app.use((req, res, next) => {
 io.use(authenticateSocket);
 
 io.on('connection', (socket) => {
-    
+  socket.on('getUsersInConversation', (conversationId, callback) => {
+    const room = io.sockets.adapter.rooms.get(conversationId);
+
+    if (room) {
+        // Convert Set to an array of socket IDs
+        const usersInRoom = Array.from(room);
+
+        // Optionally, retrieve additional information like userIds
+        const userIds = usersInRoom.map(socketId => {
+            return io.sockets.sockets.get(socketId).userId;
+        });
+
+        // Send the list of users to the client
+        callback(userIds);
+    } else {
+        callback([]);
+    }
+});
     // Get user ID from socket handshake query
     const userId = socket.userId
     console.log('User '+userId+' has connected');
@@ -116,6 +133,7 @@ io.on('connection', (socket) => {
     })
     socket.on('join', (conversationId) => {
       socket.join(conversationId);
+      console.log(`Socket ${socket.id} joined room ${conversationId}`);
     });
     console.log(onlineUsers)
         console.log('socket ' + socket.id)
@@ -156,9 +174,10 @@ app.all('*', (req, res) => {
 
 app.use(errorHandler);
 
-db.sequelize.sync().then(() => {
+db.sequelize.sync({force: false}).then(() => {
     console.log('Database synced');
     server.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`)
     })
 })
+// require("crypto").randomBytes(64).toString("hex")

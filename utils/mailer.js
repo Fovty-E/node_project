@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
         pass: process.env.MAIL_PASS
     }
 })
-
+// console.log(transporter)
 // Function to send email
 const sendEmail = async (to, subject, text, html) => {
     const mailOptions = {

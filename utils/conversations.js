@@ -26,7 +26,7 @@ async function getConversationId(user1Id, user2Id) {
             }
         });
         if (conversation && conversation.participants.includes(user2Id)) {
-            return conversation.id;
+            return conversation.hash_id;
         }
 
         return null;

@@ -1,9 +1,7 @@
 const jwt = require('jsonwebtoken')
 
 const verifyJWT = (req, res, next) => {
-    // if (req.path === '/socket.io/socket.io.js') {
-    //     return next();
-    // }
+
     const authHeader =  req.headers.authorization || req.headers.Authorization;
     // console.log(`Request to ${req.path} at ${new Date().toISOString()}`);
     // console.log(`Header to ${authHeader} `);

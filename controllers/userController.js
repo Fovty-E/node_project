@@ -46,7 +46,7 @@ const fetchMessages = async (req, res) => {
         let conversationId = await getConversationId(userId, receiverId);
         if (!conversationId) {
             const conversation = await createConversation([userId, receiverId]);
-            conversationId = conversation.id; // Use 'id' as the primary key field
+            conversationId = conversation.hash_id; // Use 'id' as the primary key field
         }
 
         const messages = await Message.findAll({
@@ -59,6 +59,7 @@ const fetchMessages = async (req, res) => {
         
         res.status(200).json({ userId, conversationId, messages });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: error.message });
     }
 }
@@ -81,12 +82,14 @@ const sendMessage = async (data, socket, userId) => {
         const { id, sender, timestamp } = message;
 
         // Emit the message to the relevant conversation
+const roomId = `socket${conversationId}`
+console.log(conversationId)
         socket.to(conversationId).emit('message', { id, text, sender, timestamp, userId });
-
+       
         // Update the last message in the conversation
         await Conversation.update(
             { lastMessage: message.id, updatedAt: new Date() },
-            { where: { id: conversationId } }
+            { where: { hash_id: conversationId } }
         );
     } catch (error) {
         console.error('Error saving message:', error);

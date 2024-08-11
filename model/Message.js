@@ -5,17 +5,17 @@ class Message extends Model {}
 
 Message.init({
     conversationId: {
-        type: DataTypes.INTEGER, // Change to INTEGER if your Conversation ID is numeric
+        type: DataTypes.UUID, // Change to INTEGER if your Conversation ID is numeric
         references: {
-            model: 'Conversations', // This should be the table name of the Conversation model
-            key: 'id'
+            model: 'conversation', // This should be the table name of the Conversation model
+            key: 'hash_id'
         },
         allowNull: false
     },
     sender: {
         type: DataTypes.INTEGER, // Change to INTEGER if your User ID is numeric
         references: {
-            model: 'Users', // This should be the table name of the User model
+            model: 'users', // This should be the table name of the User model
             key: 'id'
         },
         allowNull: false
@@ -23,7 +23,7 @@ Message.init({
     receiver: {
         type: DataTypes.INTEGER, // Change to INTEGER if your User ID is numeric
         references: {
-            model: 'Users', // This should be the table name of the User model
+            model: 'users', // This should be the table name of the User model
             key: 'id'
         },
         allowNull: false

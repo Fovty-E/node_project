@@ -45,6 +45,10 @@ document.addEventListener("DOMContentLoaded", function() {
             console.log('Connected to server');
             socket.emit('userOnline', userId);
         });
+       // Listen for 'testEvent' from server
+        socket.on('testEvent', (data) => {
+            console.log('Received testEvent from server:', data);
+        });
         window.fetchConversation = async function(e) { // Attach function to the window object
             var receiverId = e.dataset.id
             const statusElement = $(`.chatHeader`)
@@ -107,6 +111,9 @@ document.addEventListener("DOMContentLoaded", function() {
                 document.querySelector('.msg-body').dataset.receiver = receiverId;
                 const conversationId = data.conversationId; // Ensure your API returns this
                 document.querySelector('.msg-body').dataset.conversation_id = conversationId
+                // socket.emit('getUsersInConversation', conversationId, (userIds) => {
+                //     console.log('Users in conversation:', userIds);
+                // });
                 socket.emit('join', conversationId);
             } catch (error) {
                 console.error('Error:', error);
