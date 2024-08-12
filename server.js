@@ -127,20 +127,17 @@ io.on('connection', (socket) => {
     });
     
     socket.on('sendMessage', async(data) => {
-        const {sendMessage} = require('./controllers/userController')
-        await sendMessage(data, socket, userId);
+      const {text, conversationId} = data;
+      socket.to(conversationId).emit('message', { text, timestamp: Date.now() });
         
     })
     socket.on('join', (conversationId) => {
       socket.join(conversationId);
       console.log(`Socket ${socket.id} joined room ${conversationId}`);
     });
-    console.log(onlineUsers)
-        console.log('socket ' + socket.id)
     socket.on('disconnect', () => {
         
         const userId = [...onlineUsers].find(([key, value]) => value === socket.id);
-        console.log('dd'+userId)
         if(userId){
             onlineUsers.delete(userId[0]);
             // Broadcast this user's offline status to all other users
@@ -152,6 +149,7 @@ io.on('connection', (socket) => {
     });
    
   });
+
 app.use('/refresh', require('./routes/refresh'));
 app.use('/logout', require('./routes/logout'));
 

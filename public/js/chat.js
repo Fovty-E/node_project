@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function() {
                                     <span class="time">${new Date(message.timestamp).toLocaleTimeString()}</span>
                                 </li>`
                         }else{
-                            el += `<li class="reply">
+                            el += `<li class="sentText">
                                     <p> ${message.text} </p>
                                     <span class="time">${new Date(message.timestamp).toLocaleTimeString()}</span>
                                 </li>` 
@@ -139,24 +139,59 @@ document.addEventListener("DOMContentLoaded", function() {
             const text = document.querySelector('#msgText').value.trim();
             const conversationId = document.querySelector('.msg-body').dataset.conversation_id;
             const receiverId = document.querySelector('.msg-body').dataset.receiver;
-            if(text !== ""){
-                renderMessage('reply',{text, timestamp:Date.now()})
-            socket.emit('sendMessage', {
-                conversationId,
-                receiverId,
-                text
-            });
-            document.querySelector('#msgText').value = ""
+            const fileInput = document.getElementById('upload');
+            if(text !== "" || fileInput.files.length > 0){
+                renderMessage('sentText',{text, timestamp:Date.now()})
+                const formData = new FormData();
+                formData.append('conversationId', conversationId);
+                formData.append('receiverId', receiverId);
+                formData.append('text', text);
+
+                for (let i = 0; i < fileInput.files.length; i++) {
+                    formData.append('files', fileInput.files[i]);
+                    var allowedImages = ['jpg', 'jpeg', 'png', 'webp']
+                    // var ext = fileInput.files[i].split('.').pop().toLowerCase()
+                    
+                    if(fileInput.files[i].type.startsWith('image/')){
+                        renderImage(fileInput.files[i], 'sentImage')
+                        var el = document.createElement("li");
+                    }
+                    console.log(fileInput.files[i])
+                }
+            //     processRequest('/api/sendMessage',{
+            //         method: 'POST',
+            //         body: formData,
+            //     })
+            //     .then(response => response.json())
+            //     .then(data => console.log(data))
+            //     .catch((error) => {console.log(error)})
+            // socket.emit('sendMessage', {
+            //     conversationId,
+            //     receiverId,
+            //     text
+            // });
+            // document.querySelector('#msgText').value = ""
             }
             
         });
     
         socket.on('message', (data) => {
-            console.log('here')
             renderMessage('receiver',data)
         });
     })
     .catch(error => console.error('Error:', error));
+
+    const renderImage = (image, type) => {
+        let messageContainer = document.querySelector(".chatUI");
+        const imgBox = document.createElement('li')
+        imgBox.classList.add(type)
+        imgBox.innerHTML = `<img src="https://media.boohooman.com/i/boohooman/bmm94280_black_xl?$product_image_category_page$&fmt=webp" style="max-height: 100px; />`
+        // img.style.marginRight = '100px';
+        console.log(imgBox)
+        messageContainer.appendChild(imgBox);
+
+
+    }
     // Function to render friends
     const renderFriends = (friends) => {
         let chatList = document.querySelector('.chat-list');

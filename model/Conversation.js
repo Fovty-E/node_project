@@ -20,15 +20,17 @@ Conversation.init({
     lastMessage: {
         type: DataTypes.INTEGER, // Assuming Message IDs are integers; use DataTypes.UUID if you're using UUIDs
         references: {
-            model: 'messages', // This should be the table name of the Message model
+            model: 'Messages', // This should be the table name of the Message model
             key: 'id'
         },
         allowNull: true
-    }
+    },
+    
 }, {
     sequelize,
     modelName: 'Conversation',
     timestamps: true,
+    onDelete: 'CASCADE',
     indexes: [
         // Index for efficient querying
         {

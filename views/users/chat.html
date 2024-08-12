@@ -137,8 +137,6 @@
                                                 <div class="noMessage d-none"></div>
                                                 <ul class="chatUI">
                                                     
-                                                   
-    
                                                 </ul>
                                             </div>
                                         </div>
@@ -146,8 +144,11 @@
     
                                         <div class="send-box">
                                             <form action="" id="sendMessageForm">
+                                                <div id="file-tabs" class="file-tabs">
+                                                    <!-- Dynamically generated file tabs will appear here -->
+                                                </div>
                                                 <input type="text" class="form-control" id="msgText" aria-label="message…" placeholder="Write message…">
-    
+                                                <!-- <input type="file" id="file-input" multiple style="display: none;"> -->
                                                 <button type="submit"><i class="fa fa-paper-plane" aria-hidden="true" id="sendMessage"></i> Send</button>
                                             </form>
     
@@ -156,7 +157,7 @@
                                                     <div class="button-wrapper">
                                                         <span class="label">
                                                             <img class="img-fluid" src="https://mehedihtml.com/chatbox/assets/img/upload.svg" alt="image title"> attached file 
-                                                        </span><input type="file" name="upload" id="upload" class="upload-box" placeholder="Upload File" aria-label="Upload File">
+                                                        </span><input type="file" name="files" id="upload" class="upload-box" multiple placeholder="Upload File" aria-label="Upload File">
                                                     </div>
     
                                                     <select class="form-control" id="exampleFormControlSelect1">
@@ -192,7 +193,86 @@
     <script src="../js/chat.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', ()=>{
-            
+            let selectedFiles = []
+
+           $('#upload').change((event)=> {
+            const files = Array.from(event.target.files)
+            files.forEach(file => {
+                if (validateFile(file)){
+                    selectedFiles.push(file);
+                    addFileTab(file)
+                }
+            })
+           })
+
+           function addFileTab(file) {
+                const tab = document.createElement('div');
+                tab.classList.add('file-tab');
+                tab.innerHTML = `${file.name} (${(file.size / 1024).toFixed(2)} KB) <span class="cancel-icon">&times;</span>`;
+                
+                const cancelIcon = tab.querySelector('.cancel-icon');
+                cancelIcon.addEventListener('click', () => {
+                    removeFileTab(file.name);
+                });
+                
+                fileTabs.appendChild(tab);
+            }
+
+            function removeFileTab(fileName) {
+                console.log(fileName)
+                selectedFiles = selectedFiles.filter(file => file.name !== fileName)
+                // Create a new DataTransfer object to update the file input
+                const dataTransfer = new DataTransfer();
+                selectedFiles.forEach(file => dataTransfer.items.add(file));
+                document.getElementById('upload').files = dataTransfer.files;
+                renderFileTabs();
+            }
+            function renderFileTabs() {
+                $('#file-tabs').html('')
+                selectedFiles.forEach(file => {
+                    addFileTab(file);
+                });
+            }
+
+            const allowedExtensions = ['jpg', 'jpeg', 'png', 'pdf', 'docx'];
+            const maxFileSize = 5 * 1024 * 1024;
+
+            function validateFile(file){
+                
+                const fileExt = file.name.split('.').pop().toLowerCase();
+                if (!allowedExtensions.includes(fileExt)) {
+                    alert('Invalid file type!');
+                    return false;
+                }
+                if (file.size > maxFileSize) {
+                    alert('File size exceeds the limit!');
+                    return false;
+                }
+
+                return true;
+            }
+            function addFileTab(file) {
+                const tab = document.createElement('div');
+                tab.classList.add('file-tab');
+
+                if (file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.style.maxHeight = '50px';
+                    img.style.marginRight = '10px';
+                    tab.appendChild(img);
+                }
+
+                tab.innerHTML += `${file.name} (${(file.size / 1024).toFixed(2)} KB) <span class="cancel-icon">&times;</span>`;
+                
+                const cancelIcon = tab.querySelector('.cancel-icon');
+                cancelIcon.addEventListener('click', () => {
+                    removeFileTab(file.name);
+                });
+
+                $('#file-tabs').append(tab);
+            }
+
         })
 
         

@@ -480,14 +480,20 @@ a.add img {
     font-weight: 500;
 }
 
-.msg-body ul li.reply {
+.msg-body ul li.sentText {
+    display: block;
+    width: 100%;
+    text-align: right;
+    position: relative;
+}
+.msg-body ul li.sentImage {
     display: block;
     width: 100%;
     text-align: right;
     position: relative;
 }
 
-.msg-body ul li.reply:before {
+.msg-body ul li.sentText:before {
     display: block;
     clear: both;
     content: '';
@@ -504,7 +510,7 @@ a.add img {
     transform: rotate(37deg);
 }
 
-.msg-body ul li.reply p {
+.msg-body ul li.sentText p {
     color: #fff;
     font-size: 14px;
     line-height: 1.5;
@@ -518,7 +524,7 @@ a.add img {
     margin-bottom: 0;
 }
 
-.msg-body ul li.reply p b {
+.msg-body ul li.sentText p b {
     display: block;
     color: #061061;
     font-size: 14px;
@@ -526,7 +532,7 @@ a.add img {
     font-weight: 500;
 }
 
-.msg-body ul li.reply:after {
+.msg-body ul li.sentText:after {
     display: block;
     content: '';
     clear: both;
@@ -534,6 +540,12 @@ a.add img {
 .modal-dialog-scrollable .modal-body{
     overflow: hidden;
     height: 400px;
+}
+@media screen and (min-height: 800px){
+    .modal-dialog-scrollable .modal-body{
+        overflow: hidden;
+        height: 500px;
+    }
 }
 .time {
     display: block;
@@ -543,7 +555,7 @@ a.add img {
     font-weight: 400;
 }
 
-li.reply .time {
+li.sentText .time {
     margin-right: 20px;
 }
 
@@ -553,7 +565,7 @@ li.reply .time {
     text-align: center;
 }
 .msg-body {
-    max-height: 380px; /* Adjust as needed */
+    height: inherit; /* Adjust as needed */
     overflow-y: scroll;
     -ms-overflow-style: none;  /* Internet Explorer 10+ */
     scrollbar-width: none;  /* Firefox */
@@ -737,6 +749,27 @@ button:focus {
     display: none;
 }
 
+.file-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.file-tab {
+    background-color: #f0f0f0;
+    padding: 5px 10px;
+    margin-right: 5px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+}
+
+.file-tab .cancel-icon {
+    margin-left: 10px;
+    cursor: pointer;
+    color: red;
+}
 
 
 @media (max-width: 767px) {
@@ -788,7 +821,7 @@ button:focus {
         border-top-right-radius: 6px;
         border-bottom-right-radius: 6px;
     }
-    .msg-body ul li.reply p {
+    .msg-body ul li.sentText p {
         font-size: 13px;
         padding: 8px;
         border-top-left-radius: 6px;

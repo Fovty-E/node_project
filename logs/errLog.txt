@@ -11,3 +11,4 @@
 20240808	15:53:57	12c78c19-dd63-49dc-b35b-5c22a9a0bc69	Error: ENOENT: no such file or directory, stat 'C:\Users\ajewo\Desktop\node_class\express\node_modules\socket.io-client\dist\socket.io.js'
 20240808	15:54:01	285d0e3d-cca8-4030-93fe-795a5157093e	Error: ENOENT: no such file or directory, stat 'C:\Users\ajewo\Desktop\node_class\express\node_modules\socket.io-client\dist\socket.io.js'
 20240808	15:54:02	e2b78c52-038a-4d44-9dbd-6c427a1d4ab1	Error: ENOENT: no such file or directory, stat 'C:\Users\ajewo\Desktop\node_class\express\node_modules\socket.io-client\dist\socket.io.js'
+20240812	14:31:15	25844a1b-506f-4783-a231-81b80dc42cfc	Error: ENOENT: no such file or directory, open 'C:\Users\ajewo\Desktop\node_class\express\uploads\1723469475758-686253915-1311600.jpg'

@@ -7,15 +7,15 @@ Message.init({
     conversationId: {
         type: DataTypes.UUID, // Change to INTEGER if your Conversation ID is numeric
         references: {
-            model: 'conversation', // This should be the table name of the Conversation model
+            model: 'Conversations', // This should be the table name of the Conversation model
             key: 'hash_id'
         },
-        allowNull: false
+        allowNull: true
     },
     sender: {
         type: DataTypes.INTEGER, // Change to INTEGER if your User ID is numeric
         references: {
-            model: 'users', // This should be the table name of the User model
+            model: 'Users', // This should be the table name of the User model
             key: 'id'
         },
         allowNull: false
@@ -23,7 +23,7 @@ Message.init({
     receiver: {
         type: DataTypes.INTEGER, // Change to INTEGER if your User ID is numeric
         references: {
-            model: 'users', // This should be the table name of the User model
+            model: 'Users', // This should be the table name of the User model
             key: 'id'
         },
         allowNull: false
@@ -32,6 +32,10 @@ Message.init({
         type: DataTypes.STRING,
         allowNull: false
     },
+    files: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        allowNull: true
+    },
     timestamp: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW
@@ -39,7 +43,6 @@ Message.init({
 }, {
     sequelize,
     modelName: 'Message', // Model name
-    tableName: 'messages', // Optional: Specify the table name if different from the model name
     timestamps: false // You can enable this if you want createdAt and updatedAt fields
 });
 

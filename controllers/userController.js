@@ -65,34 +65,39 @@ const fetchMessages = async (req, res) => {
 }
 
 
-const sendMessage = async (data, socket, userId) => {
-    const { conversationId, receiverId, text } = data;
-    
+const sendMessage = async (req, res) => {
+    const { conversationId, receiverId, text } = req.body;
     try {
-        console.log(conversationId)
-        // Create a new message
+        const files = req.files ? req.files.map(file => file.filename) : [];
+        const userId = req.session.userId
+
         const message = await Message.create({
             conversationId,
             sender: userId,
             receiver: receiverId,
             text,
+            files,
             timestamp: new Date() // Sequelize will automatically add this if using `timestamps: true`
         });
 
         const { id, sender, timestamp } = message;
-
-        // Emit the message to the relevant conversation
-const roomId = `socket${conversationId}`
-console.log(conversationId)
-        socket.to(conversationId).emit('message', { id, text, sender, timestamp, userId });
        
-        // Update the last message in the conversation
+        // // Update the last message in the conversation
         await Conversation.update(
             { lastMessage: message.id, updatedAt: new Date() },
             { where: { hash_id: conversationId } }
         );
     } catch (error) {
         console.error('Error saving message:', error);
+    }
+}
+
+const uploadFiles = async (req, res) => {
+    try {
+        
+    } catch (error) {
+        console.log(error);
+        return sendStatus(500);
     }
 }
 

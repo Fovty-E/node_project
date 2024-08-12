@@ -8,6 +8,7 @@ async function createConversation(participants) {
     const participantIds = participants.map(participant => parseInt(participant, 10));
 
     try {
+        
         const conversation = await Conversation.create({ participants: participantIds });
         return conversation;
     } catch (error) {
