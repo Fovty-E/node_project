@@ -48,6 +48,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '/public')));
 
 
+
 // Initialize session store
 const sessionStoreInstance = new SequelizeStore({
   db: db.sequelize,
@@ -83,15 +84,17 @@ app.get('/login', (req, res) => {
 app.use('/dashboard', require('./routes/user'));
 
 app.use('/auth', require('./routes/auth'));
+app.use('/uploads',express.static(path.join(__dirname, '/uploads')));
 app.use(verifyJWT);
 
-app.use((req, res, next) => {
-    req.io = io;
-    next();
-});
+
 // Middleware to authenticate socket connections
 io.use(authenticateSocket);
-
+app.use((req, res, next) => {
+  req.io = io;
+  req.socket = req.socket;
+  next();
+});
 io.on('connection', (socket) => {
   socket.on('getUsersInConversation', (conversationId, callback) => {
     const room = io.sockets.adapter.rooms.get(conversationId);

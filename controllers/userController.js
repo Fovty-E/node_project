@@ -51,7 +51,7 @@ const fetchMessages = async (req, res) => {
 
         const messages = await Message.findAll({
             where: { conversationId },
-            attributes: ['sender', 'text', 'timestamp'],
+            // attributes: ['sender', 'text', 'timestamp'],
             order: [['timestamp', 'ASC']]
         });
 
@@ -81,6 +81,8 @@ const sendMessage = async (req, res) => {
         });
 
         const { id, sender, timestamp } = message;
+        // Emit the message to the relevant conversation
+        req.io.to(conversationId).emit('message', message);
        
         // // Update the last message in the conversation
         await Conversation.update(
@@ -92,13 +94,20 @@ const sendMessage = async (req, res) => {
     }
 }
 
-const uploadFiles = async (req, res) => {
-    try {
-        
-    } catch (error) {
-        console.log(error);
-        return sendStatus(500);
-    }
+const deleteChat = async (req, res) => {
+    if(!req?.body?.id) return res.sendStatus(400)
+        console.log(req.body)
+        // const chatId = req.body.id;
+        // Message.destroy({
+        //     where: {
+        //         id: chatId
+        //     }
+        // }).then(()=>{
+        //     return res.status(200).json({ status: 'success' })
+        // }).catch((err) => {
+        //     console.error('Error deleting user:', err);
+        // })
+   
 }
 
-module.exports = { fetchDashboard, displayChatUsers, fetchMessages, sendMessage }
+module.exports = { fetchDashboard, displayChatUsers, fetchMessages, sendMessage, deleteChat }

@@ -8,5 +8,6 @@ router.post('/dashboard',userController.fetchDashboard)
 router.post('/chat',userController.displayChatUsers)
 router.post('/fetchMessages',userController.fetchMessages)
 router.post('/sendMessage',upload.array('files', 5), userController.sendMessage)
+router.delete('/deleteChat', userController.deleteChat)
 
 module.exports = router

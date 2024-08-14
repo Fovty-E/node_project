@@ -435,13 +435,13 @@ a.add img {
     margin: 15px 0;
 }
 
-.msg-body ul li.receiver {
+.msg-body ul li.received {
     display: block;
     width: 100%;
     position: relative;
 }
 
-.msg-body ul li.receiver:before {
+.msg-body ul li.receivedText:before {
     display: block;
     clear: both;
     content: '';
@@ -458,7 +458,7 @@ a.add img {
     transform: rotate(-37deg);
 }
 
-.msg-body ul li.receiver p {
+.msg-body ul li.receivedText p {
     color: #000;
     font-size: 14px;
     line-height: 1.5;
@@ -472,7 +472,7 @@ a.add img {
     margin-bottom: 0;
 }
 
-.msg-body ul li.receiver p b {
+.msg-body ul li.receivedText p b {
     display: block;
     color: #180660;
     font-size: 14px;
@@ -480,19 +480,49 @@ a.add img {
     font-weight: 500;
 }
 
-.msg-body ul li.sentText {
+.msg-body ul li.sent {
     display: block;
     width: 100%;
     text-align: right;
     position: relative;
 }
-.msg-body ul li.sentImage {
+.msg-body ul li.sent {
     display: block;
     width: 100%;
     text-align: right;
     position: relative;
 }
 
+.msg-body ul li .chatOptions{
+    position: absolute;
+    right: 0;
+    height: auto;
+    width: auto;
+}
+.msg-body ul li .chatOptions i{
+    padding: 10px;
+}
+.msg-body ul li .chatOptions i:hover{
+    cursor: pointer;
+}
+.chatOptionsList {
+    height: auto;
+    width: 100px;
+    background-color: #dce3e0bf;
+    
+    margin-right: 11px;
+    margin-top: -8px;
+}
+.chatOptionsList span {
+    padding: 5px 0 5px 10px;
+    display: block;
+    text-align: left;
+
+}
+.chatOptionsList span:hover {
+    background-color: #dce3e0bf;
+    cursor: pointer;
+}
 .msg-body ul li.sentText:before {
     display: block;
     clear: both;
@@ -814,7 +844,7 @@ button:focus {
     .chat-list p {
         font-size: 12px;
     }
-    .msg-body ul li.receiver p {
+    .msg-body ul li.received p {
         font-size: 13px;
         padding: 8px;
         border-bottom-left-radius: 6px;

@@ -43,6 +43,7 @@ Message.init({
 }, {
     sequelize,
     modelName: 'Message', // Model name
+    // onDelete: 'CASCADE',
     timestamps: false // You can enable this if you want createdAt and updatedAt fields
 });
 

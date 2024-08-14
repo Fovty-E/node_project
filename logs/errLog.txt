@@ -12,3 +12,7 @@
 20240808	15:54:01	285d0e3d-cca8-4030-93fe-795a5157093e	Error: ENOENT: no such file or directory, stat 'C:\Users\ajewo\Desktop\node_class\express\node_modules\socket.io-client\dist\socket.io.js'
 20240808	15:54:02	e2b78c52-038a-4d44-9dbd-6c427a1d4ab1	Error: ENOENT: no such file or directory, stat 'C:\Users\ajewo\Desktop\node_class\express\node_modules\socket.io-client\dist\socket.io.js'
 20240812	14:31:15	25844a1b-506f-4783-a231-81b80dc42cfc	Error: ENOENT: no such file or directory, open 'C:\Users\ajewo\Desktop\node_class\express\uploads\1723469475758-686253915-1311600.jpg'
+20240814	17:15:51	c6d2c53a-36b0-4990-b9d5-533f36ef358a	SyntaxError: Unexpected token o in JSON at position 1
+20240814	17:19:55	2e805da8-3051-481b-824a-3767d7342495	SyntaxError: Unexpected token o in JSON at position 1
+20240814	17:21:27	7e9eb48c-6122-4051-b4cf-f621aa037759	SyntaxError: Unexpected token o in JSON at position 1
+20240814	17:23:21	67654f47-65bf-41ea-b070-8c3a32a54f45	SyntaxError: Unexpected token o in JSON at position 1

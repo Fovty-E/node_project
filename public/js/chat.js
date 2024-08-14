@@ -88,15 +88,9 @@ document.addEventListener("DOMContentLoaded", function() {
                     data.messages.forEach(message => {
                         // const formattedTime = formatTimestamp(message.timestamp);
                         if(message.sender !== data.userId){
-                            el += `<li class="receiver">
-                                    <p> ${message.text} </p>
-                                    <span class="time">${new Date(message.timestamp).toLocaleTimeString()}</span>
-                                </li>`
+                            renderMessage('received', message)
                         }else{
-                            el += `<li class="sentText">
-                                    <p> ${message.text} </p>
-                                    <span class="time">${new Date(message.timestamp).toLocaleTimeString()}</span>
-                                </li>` 
+                            renderMessage('sent', message)
                         }
                        
                         
@@ -106,8 +100,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     });
                     
                 }
-                document.querySelector('.chatUI').innerHTML = el
-                    scrollToBottom()
+                
                 document.querySelector('.msg-body').dataset.receiver = receiverId;
                 const conversationId = data.conversationId; // Ensure your API returns this
                 document.querySelector('.msg-body').dataset.conversation_id = conversationId
@@ -120,18 +113,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         }
     
-        // // Handle user status updates
-        // socket.on('userStatus', (status) => {
-        //     const { userId, online } = status;
-        //     console.log(`User ${userId} is ${online ? 'online' : 'offline'}`);
-        //     console.log(document.querySelector('body').dataset.id)
-        //     if (userId !== document.querySelector('body').dataset.id) {
-        //         document.querySelector(`.${userId}-status`).innerText = online ? 'online' : 'offline'
-            
-        //     // Update your UI to reflect user online status
-        //     }
-            
-        // });
     
         // Send a message
         document.querySelector('#sendMessageForm').addEventListener("submit", async function(event) {
@@ -141,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function() {
             const receiverId = document.querySelector('.msg-body').dataset.receiver;
             const fileInput = document.getElementById('upload');
             if(text !== "" || fileInput.files.length > 0){
-                renderMessage('sentText',{text, timestamp:Date.now()})
+                // renderMessage('sent sentText',{text, timestamp:Date.now()})
                 const formData = new FormData();
                 formData.append('conversationId', conversationId);
                 formData.append('receiverId', receiverId);
@@ -149,48 +130,54 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 for (let i = 0; i < fileInput.files.length; i++) {
                     formData.append('files', fileInput.files[i]);
-                    var allowedImages = ['jpg', 'jpeg', 'png', 'webp']
-                    // var ext = fileInput.files[i].split('.').pop().toLowerCase()
-                    
-                    if(fileInput.files[i].type.startsWith('image/')){
-                        renderImage(fileInput.files[i], 'sentImage')
-                        var el = document.createElement("li");
-                    }
-                    console.log(fileInput.files[i])
+                        // renderFile(fileInput.files[i], 'sent')
                 }
-            //     processRequest('/api/sendMessage',{
-            //         method: 'POST',
-            //         body: formData,
-            //     })
-            //     .then(response => response.json())
-            //     .then(data => console.log(data))
-            //     .catch((error) => {console.log(error)})
+                processRequest('/api/sendMessage',{
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => console.log(data))
+                .catch((error) => {console.log(error)})
             // socket.emit('sendMessage', {
             //     conversationId,
             //     receiverId,
             //     text
             // });
-            // document.querySelector('#msgText').value = ""
+            document.querySelector('#msgText').value = ""
+            document.querySelector('#upload').value = ""
+            document.querySelector('#file-tabs').innerHTML = ""
             }
             
         });
     
         socket.on('message', (data) => {
-            renderMessage('receiver',data)
+            var userId = $('body').data('id')
+            const { sender } = data
+            if (sender == userId) {
+                renderMessage('sent',data)
+            } else {
+                renderMessage('received',data)
+            }
         });
     })
     .catch(error => console.error('Error:', error));
 
-    const renderImage = (image, type) => {
-        let messageContainer = document.querySelector(".chatUI");
-        const imgBox = document.createElement('li')
-        imgBox.classList.add(type)
-        imgBox.innerHTML = `<img src="https://media.boohooman.com/i/boohooman/bmm94280_black_xl?$product_image_category_page$&fmt=webp" style="max-height: 100px; />`
-        // img.style.marginRight = '100px';
-        console.log(imgBox)
-        messageContainer.appendChild(imgBox);
-
-
+    const renderFile = (file, type) => {
+        let messageContainer = document.querySelector(".chatUI")
+        if(file.type.startsWith('image/')){
+            const imgBox = document.createElement('li')
+            imgBox.classList.add()
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.style.maxHeight = '100px';
+            imgBox.appendChild(img)
+            // img.style.marginRight = '100px';
+            messageContainer.appendChild(imgBox);
+            imgBox.scrollIntoView(false)
+        }
+        // const msgBody = document.querySelector('.msg-body');
+        // msgBody.scrollTop = msgBody.scrollHeight;
     }
     // Function to render friends
     const renderFriends = (friends) => {
@@ -215,18 +202,68 @@ document.addEventListener("DOMContentLoaded", function() {
         const messagesDiv = document.querySelector('.msg-body');
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
+    const extractTime = (dateTimeString) => {
+        const dateObject = new Date(dateTimeString);
+
+        const hours = dateObject.getHours().toString().padStart(2, '0'); // Ensures 2 digits
+        const minutes = dateObject.getMinutes().toString().padStart(2, '0'); // Ensures 2 digits
+
+        const timeString = `${hours}:${minutes}`;
+
+        return timeString;
+    }
+  
     function renderMessage(type,data){
+        
         document.querySelector('.noMessage').classList.add('d-none');
         let messageContainer = document.querySelector(".chatUI");
-        let el = document.createElement("li");
-            el.setAttribute("class",type)
-            el.innerHTML = `
+        if(data.files.length > 0){
+            const files = data.files;
+            const imageFormats = ['jpg', 'jpeg', 'png', 'webp']
+            files.forEach(file => {
+                let el = document.createElement("li");
+                let ext = file.split('.').pop().toLowerCase();
+                if (imageFormats.includes(ext)) {
+                    el.setAttribute("class",`${type}`)
+                el.innerHTML = `<div>
+                <div class="chatOptions">
+                    <i class="fa fa-ellipsis-v showChatOptions" onclick="showChatOptions(this)" aria-hidden="true"></i>
+                    <div class="chatOptionsList" style="display:none">
+                        <span>Edit</span>
+                        <span onclick="deleteChat(this)" data-id="${data.id}" >Delete</span>
+                    </div>
+                    </li>
+                </div>
+                <img style="max-height: 100px;" src="/uploads/${file}" />
+                </div><span class="time">${extractTime(data.timestamp)}</span>`;
+                }
+                
+                messageContainer.appendChild(el);
+            });
+        }
+            
+            if (data.text !== "") {
+                let el = document.createElement("li");
+                el.setAttribute("class",`${type} ${type}Text`)
+                el.innerHTML = `
+                <div class="chatOptions">
+                    <i class="fa fa-ellipsis-v" onclick="showChatOptions(this)" aria-hidden="true"></i>
+                    <div class="chatOptionsList" style="display:none">
+                        <span>Edit</span>
+                        <span onclick="deleteChat(this)" data-id="${data.id}" >Delete</span>
+                    </div>
+                    </li>
+                </div>
                 <p> ${data.text} </p>
-                <span class="time">${new Date(data.timestamp).toLocaleTimeString()}</span>
-            `;
-            messageContainer.appendChild(el);
-        //scrolll chat to end
-        const msgBody = document.querySelector('.msg-body');
-        msgBody.scrollTop = msgBody.scrollHeight;
+                <span class="time">${extractTime(data.timestamp)}</span>`;
+                messageContainer.appendChild(el);
+                
+                
+            }
+            //scrolll chat to end
+            const msgBody = document.querySelector('.msg-body');
+                msgBody.scrollTop = msgBody.scrollHeight;
     }
+
+
 });

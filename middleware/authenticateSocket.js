@@ -14,6 +14,7 @@ const authenticateSocket = (socket, next) => {
       // Attach user information to the socket object
       socket.username = foundUser.username;
       socket.userId = foundUser.id;
+      socket.request.socket = socket; // Attach the socket instance
       // socket.user = decoded; // Optional: Attach the entire decoded payload
       next();
     });

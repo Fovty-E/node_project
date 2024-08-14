@@ -192,6 +192,22 @@
     <script src="../js/main.js"></script>
     <script src="../js/chat.js"></script>
     <script>
+          const showChatOptions = (e) => {
+                $(e).siblings('.chatOptionsList').toggle()
+            }
+            const deleteChat = (e) => {
+                processRequest('/api/chat', {
+                    method: 'DELETE',
+                    body: { id: e.dataset.id },
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => console.log(data))
+                .catch(error => { console.log(error) })
+            }
+
         document.addEventListener('DOMContentLoaded', ()=>{
             let selectedFiles = []
 
