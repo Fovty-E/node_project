@@ -5,9 +5,12 @@ const userController = require('../../controllers/userController')
 const upload = require('../../config/multerConfig')
 
 router.post('/dashboard',userController.fetchDashboard)
-router.post('/chat',userController.displayChatUsers)
+router.route('/chat')
+        .post(userController.displayChatUsers)
+        // .delete(userController.deleteMessage)
 router.post('/fetchMessages',userController.fetchMessages)
 router.post('/sendMessage',upload.array('files', 5), userController.sendMessage)
-router.delete('/deleteChat', userController.deleteChat)
+router.delete('/deleteMessage',upload.array('files', 5), userController.deleteMessage)
+// router.delete('/deleteChat', userController.deleteChat)
 
 module.exports = router

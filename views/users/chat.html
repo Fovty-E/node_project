@@ -195,19 +195,28 @@
           const showChatOptions = (e) => {
                 $(e).siblings('.chatOptionsList').toggle()
             }
+        const displayActions = (e) => {
+                       
+        }
             const deleteChat = (e) => {
-                processRequest('/api/chat', {
+                const chatid = e.dataset.id;
+                processRequest('/api/deleteMessage', {
                     method: 'DELETE',
-                    body: { id: e.dataset.id },
+                    body: JSON.stringify({ id: chatid }),
                     headers: {
                         'Content-Type': 'application/json'
                     }
                 })
                 .then(response => response.json())
-                .then(data => console.log(data))
+                .then((result) => {
+                    console.log(result.success)
+                    if (result.success) {
+                        $(`.msg${chatid}id`).remove();
+                    }
+                })
                 .catch(error => { console.log(error) })
             }
-
+            
         document.addEventListener('DOMContentLoaded', ()=>{
             let selectedFiles = []
 

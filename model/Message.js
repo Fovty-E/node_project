@@ -36,6 +36,10 @@ Message.init({
         type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true
     },
+    deletedBy: {
+        type: DataTypes.ARRAY(DataTypes.INTEGER),
+        allowNull: true
+    },
     timestamp: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW

@@ -8,7 +8,7 @@ const handleLogout = async (req, res) => {
     const refreshToken = cookies.jwt;
 
     // Check if refreshToken is in the database
-    const foundUser = await User.findOne({ refreshToken }).exec();
+    const foundUser = await User.findOne({ where: {refreshToken} });
     if (!foundUser) {
         res.clearCookie('jwt', { httpOnly: true });
         return res.sendStatus(204); // No content
@@ -21,7 +21,7 @@ const handleLogout = async (req, res) => {
     res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true }); // secure: true - only serves on HTTPS
 
     // Emit forceDisconnect event before destroying the session
-    req.io.to(foundUser._id.toString()).emit('forceDisconnect');
+    req.io.to(foundUser.id.toString()).emit('forceDisconnect');
 
     req.session.destroy(err => {
         if (err) {

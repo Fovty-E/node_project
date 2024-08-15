@@ -41,7 +41,7 @@ const displayChatUsers = async (req, res) => {
 
 const fetchMessages = async (req, res) => {
     try {
-        const userId = req.session.userId;
+        const userId = req.userId;
         const receiverId = Number(req.body.receiverId);
         let conversationId = await getConversationId(userId, receiverId);
         if (!conversationId) {
@@ -69,8 +69,8 @@ const sendMessage = async (req, res) => {
     const { conversationId, receiverId, text } = req.body;
     try {
         const files = req.files ? req.files.map(file => file.filename) : [];
-        const userId = req.session.userId
-
+        const userId = req.userId
+        console.log(userId)
         const message = await Message.create({
             conversationId,
             sender: userId,
@@ -94,20 +94,39 @@ const sendMessage = async (req, res) => {
     }
 }
 
-const deleteChat = async (req, res) => {
+const deleteMessage = async (req, res) => {
     if(!req?.body?.id) return res.sendStatus(400)
-        console.log(req.body)
-        // const chatId = req.body.id;
-        // Message.destroy({
-        //     where: {
-        //         id: chatId
-        //     }
-        // }).then(()=>{
-        //     return res.status(200).json({ status: 'success' })
-        // }).catch((err) => {
-        //     console.error('Error deleting user:', err);
-        // })
+        const messageId = req.body.id;
+        const conversation = await Conversation.findOne({
+             where: {lastMessage: messageId },
+            })
+            if (conversation) {
+                const previousMessage = await Message.findOne({
+                    where: {
+                        conversationId: conversation.hash_id,
+                        id: { [Op.lt]: messageId }
+                    }
+                });
+        
+                if (previousMessage) {
+                    conversation.lastMessage = previousMessage.id;
+                } else {
+                    conversation.lastMessage = null; // Or handle as needed
+                }
+                await conversation.save();
+            }
+        Message.destroy({
+            where: {
+                id: messageId
+            }
+        }).then((message)=>{
+            console.log('message')
+            // req.io.to(message.conversationId).emit('deleteMessage',{messageId})
+            return res.status(200).json({ success: true })
+        }).catch((err) => {
+            console.error('Error deleting user:', err);
+        })
    
 }
 
-module.exports = { fetchDashboard, displayChatUsers, fetchMessages, sendMessage, deleteChat }
+module.exports = { fetchDashboard, displayChatUsers, fetchMessages, sendMessage, deleteMessage }

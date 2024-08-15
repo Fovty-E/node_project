@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", function() {
     processRequest('/api/chat', { method: 'POST' })
     .then(response => response.json())
     .then((data) => {
-        console.log(data);
         let chatList = document.querySelector('.chat-list');
         document.querySelector('body').dataset.id = data.userid;
         renderFriends(data.friends)
@@ -13,7 +12,6 @@ document.addEventListener("DOMContentLoaded", function() {
             const filteredFriends = data.friends.filter(friend =>
                 friend.username.toLowerCase().includes(searchQuery)
             );
-            console.log(friends)
             renderFriends(filteredFriends);
         });
         const socket = io({
@@ -61,7 +59,6 @@ document.addEventListener("DOMContentLoaded", function() {
             }
             
             var userId = document.querySelector('body').dataset.id
-            console.log(receiverId)
             // $('.chatHeader').attr('class', `d-flex align-items-center chatHeader ${receiverId}-status`)
             // socket.emit('userStatus', { userId, online: true });
             try {
@@ -84,19 +81,17 @@ document.addEventListener("DOMContentLoaded", function() {
                     document.querySelector('.noMessage').textContent = data.NoMessage;
                 }
                 if(data.messages){
+                    $('.chatUI').html('')
                     document.querySelector('.noMessage').classList.add('d-none');
                     data.messages.forEach(message => {
                         // const formattedTime = formatTimestamp(message.timestamp);
                         if(message.sender !== data.userId){
                             renderMessage('received', message)
                         }else{
+                            console.log(message)
                             renderMessage('sent', message)
                         }
                        
-                        
-                        // console.log(`Message: ${message.text}, Sent at: ${formattedTime}`);
-                        // Update your chat UI with the message and formatted time
-                        // Example: appendMessageToChatUI(message.text, formattedTime);
                     });
                     
                 }
@@ -152,6 +147,17 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     
         socket.on('message', (data) => {
+            var userId = $('body').data('id')
+            const { sender } = data
+            
+            if (sender == userId) {
+                console.log('here')
+                renderMessage('sent',data)
+            } else {
+                renderMessage('received',data)
+            }
+        });
+        socket.on('deleteMessage', (data) => {
             var userId = $('body').data('id')
             const { sender } = data
             if (sender == userId) {
@@ -217,23 +223,27 @@ document.addEventListener("DOMContentLoaded", function() {
         
         document.querySelector('.noMessage').classList.add('d-none');
         let messageContainer = document.querySelector(".chatUI");
-        if(data.files.length > 0){
-            const files = data.files;
-            const imageFormats = ['jpg', 'jpeg', 'png', 'webp']
-            files.forEach(file => {
-                let el = document.createElement("li");
-                let ext = file.split('.').pop().toLowerCase();
-                if (imageFormats.includes(ext)) {
-                    el.setAttribute("class",`${type}`)
-                el.innerHTML = `<div>
-                <div class="chatOptions">
+        const userId = $('body').data('id')
+        let chatActions = (userId == data.sender) ? `<div class="chatOptions" style="display:none">
                     <i class="fa fa-ellipsis-v showChatOptions" onclick="showChatOptions(this)" aria-hidden="true"></i>
                     <div class="chatOptionsList" style="display:none">
                         <span>Edit</span>
                         <span onclick="deleteChat(this)" data-id="${data.id}" >Delete</span>
                     </div>
-                    </li>
-                </div>
+                </div>` : ''
+        if(data.files.length > 0){
+            const files = data.files;
+            const imageFormats = ['jpg', 'jpeg', 'png', 'webp'];
+            
+            files.forEach(file => {
+                let el = document.createElement("li");
+                el.setAttribute("onhover",`displayActions(this)`)
+                let ext = file.split('.').pop().toLowerCase();
+                if (imageFormats.includes(ext)) {
+                    el.setAttribute("class",`${type} msg${data.id}id`)
+                    
+                el.innerHTML = `<div>
+                ${chatActions}
                 <img style="max-height: 100px;" src="/uploads/${file}" />
                 </div><span class="time">${extractTime(data.timestamp)}</span>`;
                 }
@@ -244,16 +254,10 @@ document.addEventListener("DOMContentLoaded", function() {
             
             if (data.text !== "") {
                 let el = document.createElement("li");
-                el.setAttribute("class",`${type} ${type}Text`)
+                el.setAttribute("class",`${type} ${type}Text msg${data.id}id`)
+                el.setAttribute("onhover",`displayActions(this)`)
                 el.innerHTML = `
-                <div class="chatOptions">
-                    <i class="fa fa-ellipsis-v" onclick="showChatOptions(this)" aria-hidden="true"></i>
-                    <div class="chatOptionsList" style="display:none">
-                        <span>Edit</span>
-                        <span onclick="deleteChat(this)" data-id="${data.id}" >Delete</span>
-                    </div>
-                    </li>
-                </div>
+                ${chatActions}
                 <p> ${data.text} </p>
                 <span class="time">${extractTime(data.timestamp)}</span>`;
                 messageContainer.appendChild(el);
