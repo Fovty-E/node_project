@@ -10,6 +10,7 @@ Message.init({
             model: 'Conversations', // This should be the table name of the Conversation model
             key: 'hash_id'
         },
+        onDelete: 'CASCADE', // When a conversation is deleted, delete its messages
         allowNull: true
     },
     sender: {

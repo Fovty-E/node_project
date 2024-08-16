@@ -86,14 +86,25 @@ document.addEventListener("DOMContentLoaded", function() {
                     data.messages.forEach(message => {
                         // const formattedTime = formatTimestamp(message.timestamp);
                         if(message.sender !== data.userId){
-                            renderMessage('received', message)
+                            if(message.deletedBy == null || !message.deletedBy.includes(parseInt(userId))){
+                                renderMessage('received', message)
+                            }
                         }else{
-                            console.log(message)
-                            renderMessage('sent', message)
+                            if(message.deletedBy == null || !message.deletedBy.includes(parseInt(userId))){
+                                renderMessage('sent', message)
+                            }
                         }
                        
                     });
-                    
+                    $( ".chatUI li" ).hover(
+                        function() {
+                            $( this ).find( ".chatOptions" ).fadeIn(500) ;
+                            
+                        }, function() {
+                            $( this ).find( ".chatOptions" ).fadeOut(100);
+                            $(this).find('.chatOptionsList').hide()
+                        }
+                    );
                 }
                 
                 document.querySelector('.msg-body').dataset.receiver = receiverId;

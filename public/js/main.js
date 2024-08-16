@@ -39,16 +39,16 @@ async function processRequest(url, options = {}) {
             return processRequest(url, options);
         } else {
             // Handle redirection to login
-            // window.location.href = '/login';
+            window.location.href = '/login';
         }
     }
     if(response.status === 401){
       // Handle redirection to login
-    //   window.location.href = '/login';
+      window.location.href = '/login';
     }
     if(response.status === 400){
         // Handle redirection to login
-        // window.location.href = '/login';
+        window.location.href = '/login';
       }
 
     return response;
