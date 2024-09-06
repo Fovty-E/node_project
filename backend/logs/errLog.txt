@@ -33,3 +33,8 @@
 20240815	09:16:16	12a51745-a7eb-4b9e-ad5f-042a3de0fe50	SyntaxError: Unexpected token o in JSON at position 1
 20240815	09:16:29	23f650e2-3e9f-4d4c-8694-68fedc7bc644	SyntaxError: Unexpected token o in JSON at position 1
 20240815	09:50:36	01132c4c-3af1-49f9-8dce-acdd274d5e80	TypeError: console is not a function
+20240906	08:58:33	e6c8ee19-75b5-4fef-9f83-423f8294011a	Error: Not allowed by CORS
+20240906	09:05:25	c0e9fe46-8f9c-42d6-86ad-dbe513e89ff1	Error: Not allowed by CORS
+20240906	09:07:54	f636c389-365f-4fb4-af79-237374d7fd68	Error: Not allowed by CORS
+20240906	09:15:39	3b401ad1-1d2a-4593-aa01-29b17dba2412	Error: Not allowed by CORS
+20240906	09:21:24	5bd9ffc0-8a79-4d8b-8fef-de3757d74d49	Error: Not allowed by CORS

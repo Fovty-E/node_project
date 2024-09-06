@@ -111,54 +111,55 @@ const deleteMessage = async (req, res) => {
             const userId = req.userId;
             const message = await Message.findOne({
                 where: {id: messageId},
-                attributes: ['id','deletedBy']
+                attributes: ['id','conversationId', 'deletedBy']
             })
             console.log(message.deletedBy)
             if (message.deletedBy == null) {
                 message.deletedBy = [ userId ];
                 await message.save()
-                return res.status(200).json({ success: true })
+                
             }else{
-                const conversation = await Conversation.findOne({
-                    where: {hash_id: message.conversationId },
-                   })
-                   if (conversation) {
-                       const previousMessage = await Message.findOne({
-                           where: {
-                               conversationId: conversation.hash_id,
-                               id: { [Op.lt]: messageId }
-                           },
-                           deletedBy: {
-                            [Op.or]: [
-                                null,  // Messages not deleted by anyone
-                                { [Op.not]: [userId] } // Messages not deleted by this user
-                            ]
-                        },
-                        order: [['id', 'DESC']],
-                        attributes: ['id']
-                       });
-               
-                       if (previousMessage) {
-                           conversation.lastMessage[userId] = previousMessage.id;
-                       } else {
-                           // Remove the user's lastMessage entry if no previous message is found
-                            delete conversation.lastMessage[userId];
-                       }
-                       console.log('conversation')
-                       await conversation.save();
-                   }
-                Message.destroy({
+                
+                await Message.destroy({
                     where: {
                         id: messageId
                     }
-                }).then(()=>{
-                    // req.io.to(message.conversationId).emit('deleteMessage',{messageId})
-                    return res.status(200).json({ success: true })
-                }).catch((err) => {
-                    console.error('Error deleting user:', err);
                 })
+                
+               
             }
-        
+            const conversation = await Conversation.findOne({
+                where: {hash_id: message.conversationId },
+               })
+               if (conversation) {
+                   const previousMessage = await Message.findOne({
+                       where: {
+                           conversationId: conversation.hash_id,
+                           id: { [Op.lt]: messageId }
+                       },
+                       deletedBy: {
+                        [Op.or]: [
+                            null,  // Messages not deleted by anyone
+                            { [Op.not]: [userId] } // Messages not deleted by this user
+                        ]
+                    },
+                    order: [['id', 'DESC']],
+                    attributes: ['id']
+                   });
+                   
+                   const lastMessage = conversation.lastMessage || {};
+                   if (previousMessage) {
+                       conversation.lastMessage[userId] = previousMessage.id;
+                   } else {
+                       // Remove the user's lastMessage entry if no previous message is found
+                       conversation.lastMessage[userId];
+                   }
+           
+                    conversation.changed('lastMessage', true); // Explicitly mark the field as changed
+                    await conversation.save();
+                
+               }
+               return res.status(200).json({ success: true })
    
 }
 

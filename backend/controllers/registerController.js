@@ -51,8 +51,8 @@ const handleNewUser = async (req, res) => {
 }
 
 const resendVerification = async (req, res) => {
-    const userId = new mongoose.Types.ObjectId(`${req.body.userId}`)
-    const foundUser = await User.findById(userId)
+    const userId = req.body.userId
+    const foundUser = await User.findByPk(userId)
     if(!foundUser) return res.sendStatus(401)
     const { firstname, lastname, username, email } = foundUser
         var token = jwt.sign({ userId }, process.env.EMAIL_VERIFICATION_SECRET, {expiresIn: '10m'})
@@ -64,7 +64,7 @@ const resendVerification = async (req, res) => {
                     <p>Click on link below to verify your account</p><br><a href="${verificationUrl}" target="_blank">${verificationUrl}</a> 
                     `
     const mailSent = await sendEmail(email, subject, text, html)
-    res.status(200).json({ message: 'Email Sent' })
+    res.status(200).json({ success: true, message: 'Email Sent' })
 }
 
 const handleVerifyToken = async (req, res) => {
