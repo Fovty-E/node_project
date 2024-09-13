@@ -1,11 +1,12 @@
-import {  useState, useEffect } from 'react'
+import {  useState, useEffect, useContext } from 'react'
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from '../utils/contexts/AuthProvider';
 import {useDocTitle} from '../components/CustomHook';
 import axios from 'axios'
 import Notiflix from 'notiflix';
 
 export function LoginUser(){
-
+    const { login } = useContext(AuthContext)
     const [formData, setFormData] = useState({
         username: '',
         password: '',
@@ -36,29 +37,23 @@ export function LoginUser(){
     const handleUserLogin = async (e) => {
         e.preventDefault()
        
-        console.log(formData)
-        try {
-            const response = await axios.post('/api/auth', formData)
-             console.log(response)
-             if(response){
+            const result = await login(formData)
+             console.log(result)
+             if(result.success){
                 setFormData({
                     username: '',
                     password: '',
                 })
-                
-                navigate('/dashboard')
+                navigate('/dashboard', {state: result.UserDetails} )
+             }else {
+                const {notVerified, message, userId} = result.error;
+                if (notVerified) {
+                    setFormError({ error: true, errMsg: <><p>Account not verified, check your email for a verification mail from us or <a href="#" onClick={() => resendVerification(userId)}>click Here</a></p></> })
+                }else{
+                    setFormError({ error: true, errMsg: message ?? 'An error occured' })
+                }
              }
-        } catch (err) {
-            
-            const {notVerified, message, userId} = err.response.data;
-            if (notVerified) {
-                setFormError({ error: true, errMsg: <><p>Account not verified, check your email for a verification mail from us or <a href="#" onClick={() => resendVerification(userId)}>click Here</a></p></> })
-            }else{
-                setFormError({ error: true, errMsg: message ?? 'An error occured' })
-            }
-            
-            console.log(message)
-        }
+       
     }    
 
     return (

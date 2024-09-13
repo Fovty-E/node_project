@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../model/User')
 
 const authenticateSocket = (socket, next) => {
-  
   const token = socket.handshake.auth.token
   if (token) {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, async (err, decoded) => {

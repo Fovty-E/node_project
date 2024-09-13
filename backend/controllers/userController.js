@@ -20,15 +20,13 @@ const fetchDashboard = async (req, res) => {
     res.json({username, email, userId, firstname, lastname})
 }
 
-const displayChatUsers = async (req, res) => {
-    const cookies = req.cookies
-    if(!cookies?.jwt) return res.sendStatus(401);
-    const refreshToken = cookies.jwt
-    const foundUser = await User.findOne({ 
-        where: { refreshToken } 
-    })
+const userContacts = async (req, res) => {
+    const userID = req.params.id;
+    if(!userID) return res.sendStatus(401);
+    console.log(userID)
+    const foundUser = await User.findByPk(userID)
     // Find other users (excluding the current user)
-    const friends = await User.findAll({
+    const contacts = await User.findAll({
         where: {
             username: {
                 [Op.ne]: foundUser.username
@@ -36,13 +34,14 @@ const displayChatUsers = async (req, res) => {
         },
         attributes: ['id', 'username', 'email']
     });
-    res.json({userid: foundUser.id, friends})
+    res.json({userid: foundUser.id, contacts})
 }
 
 const fetchMessages = async (req, res) => {
     try {
         const userId = req.userId;
         const receiverId = Number(req.body.receiverId);
+        console.log(receiverId)
         let conversationId = await getConversationId(userId, receiverId);
         if (!conversationId) {
             const conversation = await createConversation([userId, receiverId]);
@@ -88,6 +87,7 @@ const sendMessage = async (req, res) => {
 
         const { id, sender, timestamp } = message;
         // Emit the message to the relevant conversation
+        console.log(conversationId)
         req.io.to(conversationId).emit('message', message);
         const conversation = await Conversation.findOne({where: {hash_id:conversationId}});
         const lastMessage = conversation.lastMessage || {};
@@ -99,6 +99,7 @@ const sendMessage = async (req, res) => {
             { lastMessage, updatedAt: new Date() },
             { where: { hash_id: conversationId } }
         );
+        return res.status(200).json({ success: true })
     } catch (error) {
         console.error('Error saving message:', error);
     }
@@ -163,4 +164,4 @@ const deleteMessage = async (req, res) => {
    
 }
 
-module.exports = { fetchDashboard, displayChatUsers, fetchMessages, sendMessage, deleteMessage }
+module.exports = { fetchDashboard, userContacts, fetchMessages, sendMessage, deleteMessage }

@@ -61,7 +61,7 @@ const handleLogin =  async (req, res) => {
         
         res.cookie('jwt', refreshToken, { httpOnly: true, sameSite: 'None', secure: true, maxAge: 24 * 60 * 60 * 1000}); // secure: true
         req.session.userId = foundUser.id; // Store user ID in session
-        res.json({ accessToken })
+        res.json({ success: true, accessToken, UserDetails: foundUser })
     } else {
         res.status(401).json({'message':'Login credentials not valid'})
     }

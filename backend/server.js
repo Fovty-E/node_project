@@ -19,7 +19,14 @@ const http = require('http');
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+  cors: {
+    origin: 'http://localhost:5173', // Change to your React app URL
+    methods: ['GET', 'POST'],
+    allowedHeaders: ['Content-Type'],
+    credentials: true
+  }
+});
 
 // In-memory store for online users
 const onlineUsers = new Map();
@@ -85,6 +92,7 @@ app.use('/dashboard', require('./routes/user'));
 
 app.use('/auth', require('./routes/auth'));
 app.use('/uploads',express.static(path.join(__dirname, '/uploads')));
+app.use('/refresh-token', require('./routes/refresh'));
 app.use(verifyJWT);
 
 
@@ -128,15 +136,19 @@ io.on('connection', (socket) => {
             }
         });
     });
-    
+    // socket.on('message', )
     socket.on('sendMessage', async(data) => {
+      console.log('message')
       const {text, conversationId} = data;
-      socket.to(conversationId).emit('message', { text, timestamp: Date.now() });
+      socket.emit('message', { text, timestamp: Date.now() });
         
     })
     socket.on('join', (conversationId) => {
       socket.join(conversationId);
       console.log(`Socket ${socket.id} joined room ${conversationId}`);
+    });
+    socket.on('connect_error', (error) => {
+      console.error('Connection Error:', error);
     });
     socket.on('disconnect', () => {
         
@@ -153,10 +165,10 @@ io.on('connection', (socket) => {
    
   });
 
-app.use('/refresh', require('./routes/refresh'));
+
 app.use('/logout', require('./routes/logout'));
 
-app.use('/api', require('./routes/api/user'));
+app.use('/user', require('./routes/api/user'));
 app.use('/subdir', require('./routes/subdir'));
 app.use('/employees', require('./routes/api/employees'));
 
